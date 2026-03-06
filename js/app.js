@@ -313,15 +313,15 @@ class AppController {
             try {
                 let statusData = null;
                 
-                // Try primary payment status endpoint first
-                const response = await this.apiClient.get(`/api/v1/payments/order/${orderId}`, true);
+                // Try general order status endpoint first (User confirmed this works)
+                const response = await this.apiClient.get(`/api/v1/orders/${orderId}`, true);
                 
                 if (response.success && response.data) {
                     statusData = response.data;
                 } else {
-                    console.warn('Primary payment poll failed (Unauthorized or Error), trying order fallback...');
-                    // Fallback to general order status endpoint
-                    const fallbackResponse = await this.apiClient.get(`/api/v1/orders/${orderId}`, true);
+                    console.warn('Order status poll failed, trying payment endpoint fallback...');
+                    // Fallback to payment status endpoint
+                    const fallbackResponse = await this.apiClient.get(`/api/v1/payments/order/${orderId}`, true);
                     statusData = fallbackResponse.data || fallbackResponse;
                 }
 
