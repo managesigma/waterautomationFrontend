@@ -3,6 +3,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-touch-callout: none;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -10,6 +18,21 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f5f7fa;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-select: text;
+    overflow-x: hidden;
+}
+
+/* Prevent zoom on input focus */
+input, textarea, select {
+    font-size: 16px;
+}
+
+/* Improve scroll performance */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 /* Container and Layout */
@@ -164,11 +187,17 @@ body {
 }
 
 .message {
-    padding: 12px 16px;
-    border-radius: 6px;
-    margin-bottom: 10px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
     display: none;
     font-weight: 500;
+    line-height: 1.5;
+    border-left: 4px solid transparent;
+    position: relative;
+    animation: slideDown 0.3s ease-out;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .message.show {
@@ -176,15 +205,31 @@ body {
 }
 
 .message.success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background-color: #f0fdf4;
+    color: #166534;
+    border-left-color: #22c55e;
 }
 
 .message.error {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-left-color: #ef4444;
+}
+
+.message.success::before {
+    content: '✓';
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: bold;
+    color: #22c55e;
+}
+
+.message.error::before {
+    content: '⚠';
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: bold;
+    color: #ef4444;
 }
 
 /* Workflow Steps */
@@ -195,6 +240,7 @@ body {
     padding: 30px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .workflow-step.active {
@@ -210,6 +256,7 @@ body {
     font-size: 1.875rem;
     color: #1e293b;
     margin-bottom: 8px;
+    word-wrap: break-word;
 }
 
 .step-header p {
@@ -239,6 +286,7 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .form-group label {
@@ -253,8 +301,10 @@ body {
     border: 2px solid #e5e7eb;
     border-radius: 6px;
     font-size: 1rem;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background-color: white;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .form-group input:focus {
@@ -297,6 +347,9 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 44px;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
 }
 
 .btn:disabled {
@@ -315,6 +368,10 @@ body {
     box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
 .btn-secondary {
     background-color: #e5e7eb;
     color: #374151;
@@ -330,10 +387,6 @@ body {
     padding: 0;
     font-weight: 500;
     text-decoration: underline;
-}
-
-.btn-link:hover {
-    color: #5a67d8;
 }
 
 /* Form Switching */
@@ -426,37 +479,56 @@ body {
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #e2e8f0;
+    gap: 12px;
 }
 
-.form-actions {
-    text-align: center;
-    margin-top: 24px;
+.navigation .btn {
+    flex: 1;
+    min-width: 100px;
 }
 
-/* Responsive Design */
+.navigation .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Responsive Design - Tablets */
 @media (max-width: 768px) {
     .container {
         padding: 16px;
+        max-width: 100%;
     }
     
     .header h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
     
     .progress-bar {
-        padding: 0 10px;
+        padding: 0 8px;
     }
     
     .step-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        margin-top: 4px;
+    }
+    
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
     }
     
     .workflow-step {
-        padding: 20px;
+        padding: 20px 16px;
+        border-radius: 16px;
     }
     
     .step-header h2 {
         font-size: 1.5rem;
+    }
+    
+    .step-header p {
+        font-size: 0.95rem;
     }
     
     .completion-summary .summary-grid {
@@ -465,27 +537,238 @@ body {
     
     .navigation {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+    }
+    
+    .form-group input {
+        padding: 10px 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .message {
+        padding: 12px 14px;
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .container {
+        padding: 12px;
+        max-width: 100%;
+    }
+    
+    .header {
+        padding: 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 4px;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .progress-container {
+        margin-bottom: 20px;
+    }
+    
     .progress-step {
-        padding: 0 5px;
+        padding: 0 4px;
     }
     
     .step-number {
         width: 32px;
         height: 32px;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
+        margin-bottom: 6px;
     }
     
     .step-label {
-        font-size: 0.625rem;
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+    
+    .main-content {
+        padding: 0;
+    }
+    
+    .workflow-step {
+        padding: 16px 12px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .step-header {
+        margin-bottom: 20px;
+    }
+    
+    .step-header h2 {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .step-header p {
+        font-size: 0.85rem;
+        color: #718096;
     }
     
     .form-container {
         max-width: 100%;
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .form-container h3 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 14px;
+    }
+    
+    .form-group label {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+    
+    .form-group input {
+        padding: 12px 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border-width: 1.5px;
+        min-height: 44px;
+    }
+    
+    .form-group input:focus {
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .btn {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        min-height: 44px;
+        border-radius: 8px;
+        font-weight: 600;
+        width: 100%;
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+    
+    .message {
+        padding: 12px 12px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .error-message {
+        font-size: 0.8rem;
+        margin-top: 3px;
+    }
+    
+    .navigation {
+        gap: 8px;
+        padding-bottom: 8px;
+        margin-top: 20px;
+    }
+    
+    .navigation .btn {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .order-summary {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .order-summary h4 {
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+    
+    .order-summary .summary-item {
+        font-size: 0.85rem;
+    }
+    
+    .completion-summary {
+        padding: 16px;
+    }
+    
+    .completion-summary h4 {
+        font-size: 1.1rem;
+    }
+    
+    .completion-summary .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .completion-summary .summary-card {
+        padding: 12px;
+    }
+    
+    .completion-summary .summary-card h5 {
+        font-size: 0.75rem;
+    }
+    
+    .completion-summary .summary-card p {
+        font-size: 0.95rem;
+    }
+    
+    .form:disabled,
+    .form[disabled] {
+        opacity: 0.6;
+    }
+    
+    input[readonly] {
+        font-size: 0.85rem;
+        padding: 10px 8px;
+    }
+    
+    .loading-overlay {
+        padding: 20px;
+    }
+    
+    .spinner {
+        width: 36px;
+        height: 36px;
+        border-width: 3px;
+    }
+    
+    .loading-overlay p {
+        font-size: 0.95rem;
+    }
+    
+    .progress-bar::before {
+        left: 12px;
+        right: 12px;
+    }
+    
+    .progress-fill {
+        left: 12px;
     }
 }
 
@@ -933,6 +1216,12 @@ input:focus {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
     .message.show,
     .error-message.show {
         animation: none;
@@ -940,5 +1229,12 @@ input:focus {
     
     .form input.invalid.shake {
         animation: none;
+    }
+}
+
+/* Enhanced animations for better performance on mobile */
+@media (max-width: 768px) {
+    .progress-step.completed .step-number {
+        animation: pulse 0.3s ease-out;
     }
 }

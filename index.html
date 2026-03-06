@@ -27,263 +27,241 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen font-sans text-gray-800 antialiased selection:bg-blue-200">
-    <div class="container mx-auto px-4 py-8 max-w-4xl min-h-screen flex flex-col relative">
-        <!-- Floating decorative blobs -->
-        <div class="absolute top-0 right-0 -m-12 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 z-0 animate-pulse"></div>
-        <div class="absolute bottom-40 left-0 -m-12 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 z-0 animate-pulse" style="animation-delay: 2s;"></div>
-        
+    <div class="min-h-screen flex flex-col w-full">
         <!-- Header -->
-        <header class="text-center mb-10 p-8 bg-white/60 backdrop-blur-lg border border-white/40 rounded-3xl shadow-xl z-10 hover:shadow-2xl transition-all duration-300 group">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 tracking-tight mb-2 group-hover:scale-[1.02] transition-transform">Water Automation Portal</h1>
-            <p class="text-lg text-gray-600 font-medium">Contractor Management System</p>
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-6 sm:py-8 shadow-lg z-10 relative">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Water Automation Portal</h1>
+                <p class="text-blue-100 text-sm sm:text-base font-medium mt-1">Contractor Management System</p>
+            </div>
         </header>
 
-        <!-- Progress Indicator -->
-        <div class="mb-10 relative z-10 w-full px-4 sm:px-8">
-            <div class="flex justify-between items-center relative before:absolute before:inset-0 before:top-1/2 before:-translate-y-1/2 before:h-2 before:w-full before:bg-white/40 before:rounded-full before:-z-10 before:backdrop-blur-md pb-8">
-                <div class="absolute top-1/2 -translate-y-1/2 left-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-700 ease-in-out w-[15%]" id="progressFill"></div>
-                
-                <div class="flex flex-col items-center relative z-20 group" data-step="1">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-lg ring-4 ring-white/50 transition-all duration-300 transform group-hover:scale-110">1</div>
-                    <span class="absolute -bottom-7 text-xs sm:text-sm font-semibold text-indigo-900 whitespace-nowrap opacity-100 transition-opacity">Authentication</span>
-                </div>
-                
-                <div class="flex flex-col items-center relative z-20 group" data-step="2">
-                    <div class="w-12 h-12 rounded-full bg-white/70 backdrop-blur-md text-gray-500 flex items-center justify-center font-bold text-xl shadow-md border-2 border-gray-200 transition-all duration-300 transform group-hover:scale-110">2</div>
-                    <span class="absolute -bottom-7 text-xs sm:text-sm font-semibold text-gray-500 whitespace-nowrap opacity-70 transition-opacity">Truck Reg</span>
-                </div>
-                
-                <div class="flex flex-col items-center relative z-20 group" data-step="3">
-                    <div class="w-12 h-12 rounded-full bg-white/70 backdrop-blur-md text-gray-500 flex items-center justify-center font-bold text-xl shadow-md border-2 border-gray-200 transition-all duration-300 transform group-hover:scale-110">3</div>
-                    <span class="absolute -bottom-7 text-xs sm:text-sm font-semibold text-gray-500 whitespace-nowrap opacity-70 transition-opacity">Order</span>
-                </div>
-                
-                <div class="flex flex-col items-center relative z-20 group" data-step="4">
-                    <div class="w-12 h-12 rounded-full bg-white/70 backdrop-blur-md text-gray-500 flex items-center justify-center font-bold text-xl shadow-md border-2 border-gray-200 transition-all duration-300 transform group-hover:scale-110">4</div>
-                    <span class="absolute -bottom-7 text-xs sm:text-sm font-semibold text-gray-500 whitespace-nowrap opacity-70 transition-opacity">Payment</span>
+        <!-- Main Content -->
+        <div class="flex-grow flex flex-col w-full">
+            <!-- Progress Indicator -->
+            <div class="bg-white border-b border-gray-200 px-4 py-4 sm:py-6 sticky top-0 z-[5]">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-start sm:items-center gap-2 sm:gap-4">
+                        <!-- Step 1 -->
+                        <div class="flex flex-col items-center flex-1 min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm sm:text-lg shadow-md ring-2 ring-blue-100" data-step="1">1</div>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-700 mt-2 text-center line-clamp-2">Auth</p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex flex-col items-center flex-1 min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-lg shadow-sm border-2 border-gray-300" data-step="2">2</div>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-500 mt-2 text-center line-clamp-2">Truck</p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex flex-col items-center flex-1 min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-lg shadow-sm border-2 border-gray-300" data-step="3">3</div>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-500 mt-2 text-center line-clamp-2">Order</p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="flex flex-col items-center flex-1 min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-lg shadow-sm border-2 border-gray-300" data-step="4">4</div>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-500 mt-2 text-center line-clamp-2">Pay</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Messages -->
+            <div class="px-4 pt-4 sm:pt-6 max-w-4xl mx-auto w-full">
+                <div id="successMessage" class="hidden p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 font-medium shadow-sm flex items-center gap-3 mb-4"></div>
+                <div id="errorMessage" class="hidden p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium shadow-sm flex items-center gap-3 mb-4"></div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="fixed inset-0 bg-gray-900/70 flex flex-col items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl p-8 text-center shadow-2xl max-w-sm mx-4">
+                    <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-gray-800 font-semibold text-lg">Processing...</p>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <main class="flex-grow px-4 py-6 sm:py-8 max-w-4xl mx-auto w-full">
+                <!-- Step 1: Authentication -->
+                <section class="workflow-step active" id="authenticationStep">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">Contractor Login</h2>
+                        <p class="text-gray-500 text-center text-sm sm:text-base mb-8">Sign in or create an account to continue</p>
+
+                        <!-- Login Form -->
+                        <div id="loginContainer" class="max-w-md mx-auto">
+                            <form id="loginForm" class="space-y-4">
+                                <div>
+                                    <label for="loginPhone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" id="loginPhone" name="phone" required 
+                                           placeholder="+1234567890" 
+                                           pattern="[\+]?[1-9][\d]{7,14}"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="phoneError"></span>
+                                </div>
+                                <div>
+                                    <label for="loginEmail" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                                    <input type="email" id="loginEmail" name="email" required 
+                                           placeholder="user@example.com"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="emailError"></span>
+                                </div>
+                                <div>
+                                    <label for="loginPassword" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                                    <input type="password" id="loginPassword" name="password" required 
+                                           minlength="6"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="passwordError"></span>
+                                </div>
+                                <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 mt-6">Sign In</button>
+                            </form>
+                            <p class="text-center text-gray-600 text-sm mt-6">
+                                Don't have an account? 
+                                <button type="button" id="showRegisterBtn" class="text-blue-600 font-semibold hover:text-blue-700">Create one</button>
+                            </p>
+                        </div>
+
+                        <!-- Registration Form -->
+                        <div id="registerContainer" class="max-w-md mx-auto hidden">
+                            <form id="registerForm" class="space-y-4">
+                                <div>
+                                    <label for="registerName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" id="registerName" name="name" required 
+                                           minlength="2" 
+                                           placeholder="John Doe"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="nameError"></span>
+                                </div>
+                                <div>
+                                    <label for="registerPhone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" id="registerPhone" name="phone" required 
+                                           placeholder="+1234567890" 
+                                           pattern="[\+]?[1-9][\d]{7,14}"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden"></span>
+                                </div>
+                                <div>
+                                    <label for="registerEmail" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                                    <input type="email" id="registerEmail" name="email" required 
+                                           placeholder="user@example.com"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden"></span>
+                                </div>
+                                <div>
+                                    <label for="registerPassword" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                                    <input type="password" id="registerPassword" name="password" required 
+                                           minlength="6"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden"></span>
+                                </div>
+                                <button type="submit" class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors active:scale-95 mt-6">Create Account</button>
+                            </form>
+                            <p class="text-center text-gray-600 text-sm mt-6">
+                                Already have an account? 
+                                <button type="button" id="showLoginBtn" class="text-blue-600 font-semibold hover:text-blue-700">Login</button>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 2: Truck Registration -->
+                <section class="workflow-step hidden" id="truckRegistrationStep">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">Truck Registration</h2>
+                        <p class="text-gray-500 text-center text-sm sm:text-base mb-8">Register your water delivery truck</p>
+
+                        <div class="max-w-md mx-auto">
+                            <form id="truckRegistrationForm" class="space-y-4">
+                                <div>
+                                    <label for="registrationNumber" class="block text-sm font-semibold text-gray-700 mb-2">Registration Number</label>
+                                    <input type="text" id="registrationNumber" name="registrationNumber" required 
+                                           minlength="3" 
+                                           placeholder="ABC-123"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all uppercase">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="registrationNumberError"></span>
+                                </div>
+                                <div>
+                                    <label for="capacity" class="block text-sm font-semibold text-gray-700 mb-2">Tank Capacity (Liters)</label>
+                                    <input type="number" id="capacity" name="capacity" min="1" max="50000" required 
+                                           placeholder="5000"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="capacityError"></span>
+                                </div>
+                                <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 mt-6">Register Truck</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 3: Order Creation -->
+                <section class="workflow-step hidden" id="orderCreationStep">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">Create Order</h2>
+                        <p class="text-gray-500 text-center text-sm sm:text-base mb-8">Place a water delivery order</p>
+
+                        <div class="max-w-md mx-auto">
+                            <form id="orderCreationForm" class="space-y-4">
+                                <input type="hidden" id="truckId" name="truckId">
+                                <div>
+                                    <label for="requiredLiters" class="block text-sm font-semibold text-gray-700 mb-2">Required Liters</label>
+                                    <input type="number" id="requiredLiters" name="requiredLiters" min="1" max="50000" required 
+                                           placeholder="1000"
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                                    <span class="text-red-500 text-xs mt-1 hidden" id="requiredLitersError"></span>
+                                </div>
+                                <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 mt-6">Create Order</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 4: Payment Processing -->
+                <section class="workflow-step hidden" id="paymentProcessingStep">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">Payment</h2>
+                        <p class="text-gray-500 text-center text-sm sm:text-base mb-8">Complete your payment securely</p>
+
+                        <div class="max-w-md mx-auto">
+                            <div id="orderSummary" class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200"></div>
+                            <div id="cashfreeDropinContainer" class="w-full mb-6 hidden"></div>
+                            <button type="button" id="initPaymentBtn" class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors active:scale-95">Proceed to Pay</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Completion Step -->
+                <section class="workflow-step hidden" id="completionStep">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Order Complete</h2>
+                            <p class="text-gray-500 text-sm sm:text-base mb-8">Your water delivery order has been successfully processed.</p>
+                        </div>
+
+                        <div id="completionSummary" class="max-w-md mx-auto"></div>
+
+                        <div class="mt-8 text-center">
+                            <button type="button" id="startNewWorkflowBtn" class="py-3 px-8 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-lg transition-colors">Start New Order</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </div>
 
-        <!-- Main Content Area -->
-        <main class="flex-grow flex flex-col relative z-10 w-full px-2 sm:px-0">
-            <!-- Loading Indicator -->
-            <div id="loadingOverlay" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm hidden flex-col items-center justify-center z-50 transition-opacity duration-300">
-                <div class="w-16 h-16 border-4 border-white/20 border-t-blue-500 rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                <p class="text-white text-lg font-medium tracking-wide">Processing...</p>
-            </div>
-
-            <!-- Global Messages -->
-            <div class="mb-6 w-full max-w-2xl mx-auto space-y-3">
-                <div id="successMessage" class="hidden p-4 rounded-xl bg-green-50/90 backdrop-blur-md border border-green-200 text-green-700 font-medium shadow-sm flex items-center gap-3 transform transition-all translate-y-[-10px] opacity-0"></div>
-                <div id="errorMessage" class="hidden p-4 rounded-xl bg-red-50/90 backdrop-blur-md border border-red-200 text-red-600 font-medium shadow-sm flex items-center gap-3 transform transition-all translate-y-[-10px] opacity-0"></div>
-            </div>
-
-            <!-- Step 1: Authentication -->
-            <section class="workflow-step active bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/50 w-full animate-[fadeIn_0.5s_ease-out]" id="authenticationStep">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Contractor Authentication</h2>
-                    <p class="text-gray-500">Please login or register to access the water delivery management system.</p>
-                </div>
-
-                <!-- Login Form -->
-                <div class="max-w-md mx-auto" id="loginContainer">
-                    <h3 class="text-2xl font-semibold text-center text-gray-700 mb-8 pb-2 border-b border-gray-200/60 inline-block w-full">Login to Account</h3>
-                    <form id="loginForm" class="space-y-6">
-                        <div class="space-y-2">
-                            <label for="loginPhone" class="block text-sm font-semibold text-gray-700">Phone Number</label>
-                            <input type="tel" id="loginPhone" name="phone" required 
-                                   placeholder="+1234567890" 
-                                   pattern="[\+]?[1-9][\d]{7,14}"
-                                   title="Please enter a valid phone number"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="phoneError"></span>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="loginEmail" class="block text-sm font-semibold text-gray-700">Email Address</label>
-                            <input type="email" id="loginEmail" name="email" required 
-                                   placeholder="user@example.com"
-                                   title="Please enter a valid email address"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="emailError"></span>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="loginPassword" class="block text-sm font-semibold text-gray-700">Password</label>
-                            <input type="password" id="loginPassword" name="password" required 
-                                   minlength="6"
-                                   title="Password must be at least 6 characters long"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="passwordError"></span>
-                        </div>
-                        <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 transform transition-all active:scale-[0.98]">Sign In</button>
-                    </form>
-                    <p class="text-center mt-8 text-gray-500">
-                        Don't have an account? 
-                        <button type="button" class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors underline decoration-2 underline-offset-4" id="showRegisterBtn">Create one here</button>
-                    </p>
-                </div>
-
-                <!-- Registration Form -->
-                <div class="max-w-md mx-auto hidden" id="registerContainer">
-                    <h3 class="text-2xl font-semibold text-center text-gray-700 mb-8 pb-2 border-b border-gray-200/60 inline-block w-full">Create Account</h3>
-                    <form id="registerForm" class="space-y-5">
-                        <div class="space-y-1.5">
-                            <label for="registerName" class="block text-sm font-semibold text-gray-700">Full Name</label>
-                            <input type="text" id="registerName" name="name" required 
-                                   minlength="2" 
-                                   placeholder="John Doe"
-                                   title="Name must be at least 2 characters long"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="nameError"></span>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="registerPhone" class="block text-sm font-semibold text-gray-700">Phone Number</label>
-                            <input type="tel" id="registerPhone" name="phone" required 
-                                   placeholder="+1234567890" 
-                                   pattern="[\+]?[1-9][\d]{7,14}"
-                                   title="Please enter a valid phone number"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="phoneError"></span>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="registerEmail" class="block text-sm font-semibold text-gray-700">Email Address</label>
-                            <input type="email" id="registerEmail" name="email" required 
-                                   placeholder="user@example.com"
-                                   title="Please enter a valid email address"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="emailError"></span>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="registerPassword" class="block text-sm font-semibold text-gray-700">Password</label>
-                            <input type="password" id="registerPassword" name="password" required 
-                                   minlength="6"
-                                   title="Password must be at least 6 characters long and contain at least one letter"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="passwordError"></span>
-                        </div>
-                        <button type="submit" class="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-teal-500/30 transform transition-all active:scale-[0.98]">Complete Registration</button>
-                    </form>
-                    <p class="text-center mt-6 text-gray-500">
-                        Already have an account? 
-                        <button type="button" class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors underline decoration-2 underline-offset-4" id="showLoginBtn">Login here</button>
-                    </p>
-                </div>
-            </section>
-
-            <!-- Step 2: Truck Registration -->
-            <section class="workflow-step bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/50 w-full hidden animate-[fadeIn_0.5s_ease-out]" id="truckRegistrationStep">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Truck Registration</h2>
-                    <p class="text-gray-500">Register your water delivery truck to create orders.</p>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <form id="truckRegistrationForm" class="space-y-6">
-                        <div class="space-y-2">
-                            <label for="registrationNumber" class="block text-sm font-semibold text-gray-700">Registration Number</label>
-                            <input type="text" id="registrationNumber" name="registrationNumber" required 
-                                   minlength="3" 
-                                   pattern="[A-Za-z0-9\-]+"
-                                   placeholder="ABC-123"
-                                   title="Registration number must be at least 3 characters and contain only letters, numbers, and hyphens"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none uppercase">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="registrationNumberError"></span>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="capacity" class="block text-sm font-semibold text-gray-700">Capacity (Liters)</label>
-                            <input type="number" id="capacity" name="capacity" min="1" max="50000" required 
-                                   placeholder="5000"
-                                   title="Capacity must be greater than 0"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="capacityError"></span>
-                        </div>
-                        <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 transform transition-all active:scale-[0.98]">Register Truck</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Step 3: Order Creation -->
-            <section class="workflow-step bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/50 w-full hidden animate-[fadeIn_0.5s_ease-out]" id="orderCreationStep">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Order Creation</h2>
-                    <p class="text-gray-500">Create a water delivery order for your registered truck.</p>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <form id="orderCreationForm" class="space-y-6">
-                        <div class="space-y-2 hidden">
-                            <label for="truckId" class="block text-sm font-semibold text-gray-700">Truck ID</label>
-                            <input type="text" id="truckId" name="truckId" readonly
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/80 text-gray-500 cursor-not-allowed outline-none font-mono text-sm">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="truckIdError"></span>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="requiredLiters" class="block text-sm font-semibold text-gray-700">Required Liters</label>
-                            <input type="number" id="requiredLiters" name="requiredLiters" min="1" max="50000" required 
-                                   placeholder="1000"
-                                   title="Required liters must be greater than 0"
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-300/80 bg-white/50 focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none">
-                            <span class="text-red-500 text-sm font-medium mt-1 hidden" id="requiredLitersError"></span>
-                        </div>
-                        <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 transform transition-all active:scale-[0.98]">Create Order</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Step 4: Payment Processing -->
-            <section class="workflow-step bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/50 w-full hidden animate-[fadeIn_0.5s_ease-out]" id="paymentProcessingStep">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Payment Processing</h2>
-                    <p class="text-gray-500">Process payment for your water delivery order securely.</p>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <div class="mb-8" id="orderSummary">
-                        <!-- Order details will be populated here by UI.js -->
-                    </div>
-                    
-                    <!-- Cashfree Checkout Container -->
-                    <div id="cashfreeDropinContainer" class="w-full min-h-[400px] bg-white rounded-2xl shadow-inner border border-gray-100 hidden"></div>
-
-                    <form id="paymentForm" class="space-y-6">
-                        <div class="space-y-2 hidden">
-                            <label for="orderId" class="block text-sm font-semibold text-gray-700">Order ID</label>
-                            <input type="text" id="orderId" name="orderId" readonly
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/80 text-gray-500 cursor-not-allowed outline-none font-mono text-sm">
-                        </div>
-                        <button type="button" id="initPaymentBtn" class="w-full py-4 px-4 bg-[#6e46e5] hover:bg-[#5b36cb] text-white font-bold rounded-xl shadow-[0_4px_14px_0_rgba(110,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(110,70,229,0.23)] hover:-translate-y-0.5 transform transition-all">Proceed to Pay</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Completion Step -->
-            <section class="workflow-step bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/50 w-full hidden animate-[fadeIn_0.5s_ease-out]" id="completionStep">
-                <div class="text-center mb-8">
-                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Workflow Complete</h2>
-                    <p class="text-gray-500">Your water delivery order has been successfully processed.</p>
-                </div>
-
-                <div id="completionSummary" class="max-w-xl mx-auto">
-                    <!-- Completion details will be populated here -->
-                </div>
-
-                <div class="mt-10 text-center">
-                    <button type="button" class="py-3 px-8 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-bold rounded-xl shadow-sm transition-colors" id="startNewWorkflowBtn">Start New Order</button>
-                </div>
-            </section>
-        </main>
-
-        <!-- Navigation -->
-        <nav class="mt-auto pt-8 pb-4 flex justify-between items-center px-4 relative z-10">
-            <button type="button" class="py-2 px-6 rounded-lg text-gray-600 hover:bg-white/50 hover:text-gray-900 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2" id="backBtn" disabled>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Back
+        <!-- Footer Navigation -->
+        <div class="bg-white border-t border-gray-200 px-4 py-4 flex gap-3 justify-between max-w-4xl mx-auto w-full">
+            <button type="button" id="backBtn" class="py-2 px-6 rounded-lg text-gray-600 hover:bg-gray-100 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm sm:text-base" disabled>
+                ← Back
             </button>
-            <button type="button" class="py-2 px-6 rounded-lg text-red-500 hover:bg-white/50 hover:text-red-700 font-medium transition-colors" id="logoutBtn">Logout</button>
-        </nav>
+            <button type="button" id="logoutBtn" class="py-2 px-6 rounded-lg text-red-600 hover:bg-red-50 font-medium transition-colors text-sm sm:text-base">
+                Logout
+            </button>
+        </div>
     </div>
 
     <!-- JavaScript Modules -->

@@ -279,7 +279,7 @@ class UIManager {
         const orderSummary = document.getElementById('orderSummary');
         if (!orderSummary) return;
 
-        const estimatedCost = order.requiredLiters * 0.05; // $0.05 per liter
+        const estimatedCost = order.requiredLiters * 0.5; // $0.5 per liter
 
         orderSummary.innerHTML = `
             <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-5 mb-6">

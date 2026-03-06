@@ -387,7 +387,7 @@ class Order {
     /**
      * Calculate estimated cost (placeholder calculation)
      */
-    calculateEstimatedCost(pricePerLiter = 0.05) {
+    calculateEstimatedCost(pricePerLiter = 0.5) {
         return this.requiredLiters * pricePerLiter;
     }
 
