@@ -4,7 +4,7 @@
  */
 
 class APIClient {
-    constructor(baseURL = 'http://34.204.174.3:3000') {
+    constructor(baseURL = 'https://34.204.174.3.sslip.io') {
             this.baseURL = baseURL;
             this.defaultHeaders = {
                 'Content-Type': 'application/json',
@@ -494,5 +494,6 @@ class APIClient {
         return { ...this.requestLogger };
     }
 }
+
 
 export { APIClient };
