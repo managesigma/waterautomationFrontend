@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Users, Plus, IndianRupee, Search, MoreHorizontal, Briefcase } from 'lucide-react';
+import { Users, Plus, IndianRupee, Search, MoreHorizontal, Briefcase, Server } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 interface Contractor {
@@ -45,6 +46,13 @@ export default function PmcAdminDashboard() {
         </div>
         
         <div className="flex items-center gap-3">
+           <Link
+             href="/pmc-admin/devices"
+             className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+           >
+             <Server className="w-4 h-4 text-blue-600" />
+             Manage Devices
+           </Link>
            <button
              onClick={() => setIsModalOpen(true)}
              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
