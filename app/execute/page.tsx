@@ -1,34 +1,55 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Droplets, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Droplets, CheckCircle2, XCircle, Loader2, Truck, Gauge } from 'lucide-react';
+import axios from 'axios';
+
+const CENTRAL_API = process.env.NEXT_PUBLIC_CENTRAL_API_URL || 'http://localhost:3000/api/v1';
+
+interface OrderDetails {
+  _id: string;
+  driverName?: string;
+  driverMobile?: string;
+  liters: number;
+  truckId?: { truckName: string; truckNumber: string; capacity: number };
+  status: string;
+}
 
 function ExecuteForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   
   const [poleId, setPoleId] = useState('');
-  const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
+  const [status, setStatus] = useState<'IDLE' | 'LOADING_ORDER' | 'READY' | 'VALIDATING' | 'SUCCESS' | 'ERROR'>('IDLE');
   const [errorMessage, setErrorMessage] = useState('');
+  const [order, setOrder] = useState<OrderDetails | null>(null);
+
+  // Fetch order details when token is present
+  useEffect(() => {
+    if (!token) return;
+    setStatus('LOADING_ORDER');
+    
+    axios.get(`${CENTRAL_API}/order/driver/${token}`)
+      .then((res) => {
+        setOrder(res.data?.data);
+        setStatus('READY');
+      })
+      .catch((err) => {
+        setErrorMessage(err.response?.data?.message || 'Order not found or has expired.');
+        setStatus('ERROR');
+      });
+  }, [token]);
 
   const handleValidate = async () => {
-    if (!poleId) return;
-    setStatus('LOADING');
+    if (!poleId || !token) return;
+    setStatus('VALIDATING');
     
     try {
-      // Mock API trigger POST /order/driver/validate
-      // const res = await fetch('...', { method: 'POST', body: JSON.stringify({ token, poleId }) });
-      await new Promise(r => setTimeout(r, 2000));
-      
-      // Simulating validation logic
-      if (poleId.length < 3) {
-        throw new Error('Invalid Pole ID. Please check the label on the dispense machine.');
-      }
-      
+      await axios.post(`${CENTRAL_API}/order/driver/validate`, { token, poleId });
       setStatus('SUCCESS');
     } catch (err: any) {
-      setErrorMessage(err.message || 'Verification failed');
+      setErrorMessage(err.response?.data?.message || 'Validation failed. Please try again.');
       setStatus('ERROR');
     }
   };
@@ -43,7 +64,17 @@ function ExecuteForm() {
     );
   }
 
-  if (status === 'LOADING') {
+  if (status === 'LOADING_ORDER') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-in fade-in zoom-in duration-300">
+        <Loader2 className="w-24 h-24 text-[var(--color-interactive)] animate-spin mb-8 drop-shadow-md" />
+        <h2 className="text-3xl font-black text-[var(--color-text-main)] mb-3">Loading Order...</h2>
+        <p className="text-lg text-gray-500">Fetching your assignment details</p>
+      </div>
+    );
+  }
+
+  if (status === 'VALIDATING') {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-in fade-in zoom-in duration-300">
         <Loader2 className="w-24 h-24 text-[var(--color-interactive)] animate-spin mb-8 drop-shadow-md" />
@@ -73,7 +104,7 @@ function ExecuteForm() {
         <h1 className="text-4xl font-black text-red-700 mb-3 tracking-tight">Error</h1>
         <p className="text-xl text-red-800/80 mb-10 font-medium px-2">{errorMessage}</p>
         <button 
-          onClick={() => setStatus('IDLE')}
+          onClick={() => { setStatus('READY'); setErrorMessage(''); }}
           className="w-full py-5 text-2xl font-bold bg-white text-red-600 border-2 border-red-200 rounded-2xl shadow-sm active:scale-95 transition-transform"
         >
           Try Again
@@ -82,9 +113,10 @@ function ExecuteForm() {
     );
   }
 
+  // READY state — show order details + pole ID input
   return (
     <div className="flex flex-col h-full bg-white animate-in fade-in duration-300">
-      <div className="bg-[var(--color-text-main)] text-white p-6 pt-10 rounded-b-[2.5rem] shadow-md flex flex-col items-center justify-center min-h-[30vh]">
+      <div className="bg-[var(--color-text-main)] text-white p-6 pt-10 rounded-b-[2.5rem] shadow-md flex flex-col items-center justify-center min-h-[28vh]">
         <div className="bg-white/10 p-4 rounded-full mb-4">
           <Droplets className="w-12 h-12 text-[var(--color-interactive)]" />
         </div>
@@ -92,7 +124,28 @@ function ExecuteForm() {
         <p className="text-[#d9faff] opacity-80 mt-2 text-lg font-medium">Water Fill Authorization</p>
       </div>
 
-      <div className="flex-1 flex flex-col p-6 mt-4 gap-8">
+      {/* Order Info */}
+      {order && (
+        <div className="mx-6 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Truck className="w-4 h-4 text-gray-400" />
+              <span className="font-medium">
+                {typeof order.truckId === 'object' && order.truckId ? order.truckId.truckNumber : 'Truck'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-blue-600">
+              <Gauge className="w-4 h-4" />
+              {order.liters.toLocaleString()} L
+            </div>
+          </div>
+          {order.driverName && (
+            <p className="text-xs text-gray-500">Driver: {order.driverName}</p>
+          )}
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col p-6 mt-2 gap-8">
         <div className="flex flex-col gap-3">
           <label className="text-2xl font-bold text-gray-800 text-center">
             Enter Machine ID

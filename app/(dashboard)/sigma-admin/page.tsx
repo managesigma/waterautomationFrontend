@@ -134,6 +134,17 @@ export default function SigmaDashboardPage() {
                </div>
                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
             </Link>
+
+            <Link href="/sigma-admin/devices" className="flex items-center p-3 rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group">
+               <div className="w-8 h-8 rounded-md bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
+                 <Server className="w-4 h-4" />
+               </div>
+               <div className="flex-1">
+                 <p className="text-sm font-medium text-gray-900 group-hover:text-indigo-700">Manage Devices</p>
+                 <p className="text-xs text-gray-500">Register master devices</p>
+               </div>
+               <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-indigo-600" />
+            </Link>
          </div>
       </div>
     </div>
