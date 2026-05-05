@@ -3,25 +3,25 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { 
-  Droplets, 
-  Send, 
-  RefreshCw, 
-  CreditCard, 
-  Plus, 
-  Clock, 
-  ArrowRight, 
-  Truck, 
-  Package,
-  ExternalLink,
-  Search,
-  Filter,
-  X,
-  AlertTriangle
-} from 'lucide-react';
-import { toast } from 'sonner';
 import Link from 'next/link';
-import clsx from 'clsx';
+import { toast } from 'sonner';
+import Drawer, { FormLabel, FormSection, inputCls } from '@/components/ui/Drawer';
+import { SvgIconProps } from '@mui/material/SvgIcon';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
+import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
+import PhoneIphoneRoundedIcon from '@mui/icons-material/PhoneIphoneRounded';
 
 interface Order {
   _id: string;
@@ -50,23 +50,23 @@ interface WalletData {
   availableBalance: number;
 }
 
-const statusColors: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-600 border-amber-200/50',
-  WALLET_RESERVED: 'bg-blue-50 text-blue-600 border-blue-200/50',
-  TOKEN_SENT: 'bg-indigo-50 text-indigo-600 border-indigo-200/50',
-  READY_FOR_EXECUTION: 'bg-cyan-50 text-cyan-600 border-cyan-200/50',
-  DISPENSING: 'bg-purple-50 text-purple-600 border-purple-200/50',
-  COMPLETED: 'bg-success-subtle text-success border-success/20',
-  FAILED: 'bg-danger-subtle text-danger border-danger/20',
-  CANCELLED: 'bg-gray-50 text-ink-disabled border-edge-light',
-  EXPIRED: 'bg-orange-50 text-orange-600 border-orange-200/50',
+const statusStyles: Record<string, string> = {
+  PENDING: 'bg-amber-50 text-amber-700',
+  WALLET_RESERVED: 'bg-blue-50 text-blue-700',
+  TOKEN_SENT: 'bg-indigo-50 text-indigo-700',
+  READY_FOR_EXECUTION: 'bg-cyan-50 text-cyan-700',
+  DISPENSING: 'bg-violet-50 text-violet-700',
+  COMPLETED: 'bg-success-subtle text-success',
+  FAILED: 'bg-danger-subtle text-danger',
+  CANCELLED: 'bg-slate-100 text-ink-muted',
+  EXPIRED: 'bg-orange-50 text-orange-700',
 };
 
 export default function ContractorDashboard() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: walletRes } = useQuery({
+  const { data: walletRes, isLoading: walletLoading } = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: async () => {
       const res = await api.get<any>('/wallet/balance');
@@ -76,164 +76,327 @@ export default function ContractorDashboard() {
 
   const { data: ordersRes, isLoading: isOrdersLoading } = useQuery({
     queryKey: ['recent-orders'],
-    queryFn: async () => {
-      const res = await api.get<any>('/orders');
-      return res;
-    },
+    queryFn: async () => api.get<any>('/orders'),
   });
 
-  const recentOrders: Order[] = (ordersRes?.data || []).slice(0, 5);
+  const allOrders: Order[] = ordersRes?.data || [];
+  const recentOrders: Order[] = allOrders.slice(0, 6);
   const wallet = walletRes;
 
+  const completedToday = allOrders.filter(
+    (o) => o.status === 'COMPLETED' && new Date(o.createdAt).toDateString() === new Date().toDateString()
+  ).length;
+
   return (
-    <div className="flex flex-col gap-8 w-full max-w-[1400px] mx-auto animate-in fade-in duration-500 font-sans">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-ink tracking-tight">Fleet Operations</h1>
-          <p className="text-sm text-ink-muted mt-0.5">Real-time tanker dispatch and financial oversight</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-           <button
-             onClick={() => setIsModalOpen(true)}
-             className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand/20 active:scale-[0.98]"
-           >
-             <Plus className="w-4 h-4" />
-             Issue Filling Token
-           </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Wallet Summary Card */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          <div className="bg-white rounded-3xl p-8 border border-edge-light shadow-sm relative overflow-hidden group">
-             {/* Decorative Background Icon */}
-             <CreditCard className="absolute -right-4 -bottom-4 w-32 h-32 text-brand/5 rotate-12 group-hover:scale-110 transition-transform duration-500" />
-             
-             <div className="flex items-center justify-between mb-8">
-                <div className="w-12 h-12 bg-brand-subtle text-brand rounded-2xl flex items-center justify-center shadow-inner">
-                   <CreditCard className="w-6 h-6" />
-                </div>
-                <Link href="/contractor/wallet" className="p-2 hover:bg-surface rounded-xl transition-all">
-                   <ExternalLink className="w-4 h-4 text-ink-disabled" />
-                </Link>
-             </div>
-
-             <p className="text-xs font-bold text-ink-muted uppercase tracking-[0.2em] mb-2">Total Balance</p>
-             <h2 className="text-4xl font-bold text-ink mb-8 tracking-tight">₹{(wallet?.walletBalance || 0).toLocaleString()}</h2>
-
-             <div className="grid grid-cols-2 gap-4 pt-6 border-t border-edge-light">
-                <div>
-                   <p className="text-[10px] font-bold text-ink-disabled uppercase tracking-widest mb-1">Available</p>
-                   <p className="text-lg font-bold text-success leading-none">₹{(wallet?.availableBalance || 0).toLocaleString()}</p>
-                </div>
-                <div>
-                   <p className="text-[10px] font-bold text-ink-disabled uppercase tracking-widest mb-1">Reserved</p>
-                   <p className="text-lg font-bold text-danger leading-none">₹{(wallet?.walletReserved || 0).toLocaleString()}</p>
-                </div>
-             </div>
-             
-             <Link 
-               href="/contractor/wallet" 
-               className="mt-8 w-full py-3.5 bg-surface hover:bg-white border border-edge-light rounded-2xl text-sm font-bold text-ink transition-all flex justify-center items-center gap-2 hover:border-brand/30 shadow-sm active:scale-[0.99]"
-             >
-               <RefreshCw className="w-4 h-4 text-brand" />
-               Recharge Wallet
-             </Link>
+    <>
+      <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
+        {/* Hero */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
+              Operations → Dashboard
+            </p>
+            <h1 className="text-2xl font-bold text-ink tracking-tight">Fleet Operations</h1>
+            <p className="text-sm text-ink-muted mt-1">
+              Real-time tanker dispatch and financial oversight.
+            </p>
           </div>
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98] self-start md:self-auto"
+          >
+            <AddRoundedIcon sx={{ fontSize: 16 }} />
+            Issue Filling Token
+          </button>
         </div>
-        
-        {/* Recent Orders Table (Ref image 2) */}
-        <div className="lg:col-span-8 bg-white rounded-3xl border border-edge-light shadow-sm overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-edge-light bg-surface/30 flex items-center justify-between">
-             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-                   <Clock className="w-5 h-5" />
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <MiniStat
+            label="Wallet Balance"
+            value={wallet?.walletBalance || 0}
+            Icon={AccountBalanceWalletOutlinedIcon}
+            currency
+            loading={walletLoading}
+          />
+          <MiniStat
+            label="Available"
+            value={wallet?.availableBalance || 0}
+            Icon={LocalAtmRoundedIcon}
+            currency
+            accent="success"
+            loading={walletLoading}
+          />
+          <MiniStat
+            label="Reserved"
+            value={wallet?.walletReserved || 0}
+            Icon={LockOutlinedIcon}
+            currency
+            accent="warning"
+            loading={walletLoading}
+          />
+          <MiniStat
+            label="Completed Today"
+            value={completedToday}
+            Icon={LocalShippingOutlinedIcon}
+            accent="indigo"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Wallet card */}
+          <aside className="lg:col-span-4 minimal-card overflow-hidden flex flex-col">
+            <div className="px-5 py-3 border-b border-edge-light flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded bg-brand-subtle text-brand flex items-center justify-center">
+                  <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />
                 </div>
-                <h2 className="font-bold text-ink tracking-tight">Recent Dispatches</h2>
-             </div>
-             <Link href="/contractor/orders" className="text-xs font-bold text-brand hover:bg-brand-subtle px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 uppercase tracking-widest">
-               All History <ArrowRight className="w-3.5 h-3.5" />
-             </Link>
-          </div>
-          
-          <div className="overflow-x-auto flex-1">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-700 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.1em]">
-                  <th className="px-6 py-4">Ref ID</th>
-                  <th className="px-6 py-4">Driver / Tanker</th>
-                  <th className="px-6 py-4">Volume</th>
-                  <th className="px-6 py-4 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-edge-light">
-                {isOrdersLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td colSpan={4} className="px-6 py-5 h-16 bg-white" />
-                    </tr>
-                  ))
-                ) : recentOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-20 text-center text-sm font-bold text-ink-muted">
-                      No recent dispatches found. Start by issuing a token.
-                    </td>
+                <h2 className="text-sm font-semibold text-ink">Wallet</h2>
+              </div>
+              <Link
+                href="/contractor/wallet"
+                className="p-1.5 text-ink-muted hover:text-brand hover:bg-brand-subtle rounded transition-colors"
+                title="Open wallet"
+              >
+                <OpenInNewRoundedIcon sx={{ fontSize: 14 }} />
+              </Link>
+            </div>
+
+            <div className="px-5 py-5 flex flex-col gap-5">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+                  Total Balance
+                </p>
+                <p className="text-3xl font-bold text-ink tracking-tight tabular-nums leading-none flex items-center">
+                  <CurrencyRupeeRoundedIcon sx={{ fontSize: 24 }} className="text-ink-secondary" />
+                  {(wallet?.walletBalance || 0).toLocaleString()}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-edge-light">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-1">
+                    Available
+                  </p>
+                  <p className="text-[15px] font-semibold text-success tabular-nums leading-none flex items-center">
+                    <CurrencyRupeeRoundedIcon sx={{ fontSize: 14 }} />
+                    {(wallet?.availableBalance || 0).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-1">
+                    Reserved
+                  </p>
+                  <p className="text-[15px] font-semibold text-amber-600 tabular-nums leading-none flex items-center">
+                    <CurrencyRupeeRoundedIcon sx={{ fontSize: 14 }} />
+                    {(wallet?.walletReserved || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href="/contractor/wallet"
+                className="mt-1 inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all"
+              >
+                <RefreshRoundedIcon sx={{ fontSize: 14 }} />
+                Recharge Wallet
+              </Link>
+            </div>
+          </aside>
+
+          {/* Recent orders */}
+          <section className="lg:col-span-8 minimal-card overflow-hidden flex flex-col">
+            <div className="px-5 py-3 border-b border-edge-light flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <HistoryRoundedIcon sx={{ fontSize: 16 }} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm font-semibold text-ink leading-tight">Recent Dispatches</h2>
+                  <p className="text-[10px] text-ink-muted">Latest filling tokens issued</p>
+                </div>
+              </div>
+              <Link
+                href="/contractor/orders"
+                className="inline-flex items-center gap-1 h-7 px-2.5 rounded text-[11px] font-semibold text-brand hover:bg-brand-subtle transition-colors"
+              >
+                View all
+                <ArrowForwardRoundedIcon sx={{ fontSize: 12 }} />
+              </Link>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-edge-light">
+                    <th className="px-5 py-2.5">Ref</th>
+                    <th className="px-5 py-2.5">Driver / Tanker</th>
+                    <th className="px-5 py-2.5 text-right">Volume</th>
+                    <th className="px-5 py-2.5 text-right">Status</th>
                   </tr>
-                ) : (
-                  recentOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-blue-50/20 transition-colors group">
-                      <td className="px-6 py-4">
-                        <span className="font-mono font-bold text-ink-secondary text-xs uppercase tracking-tight">#{order._id.slice(-6)}</span>
-                        <div className="text-[10px] text-ink-disabled font-bold mt-1 flex items-center gap-1">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                         <div className="font-semibold text-ink text-sm">{order.driverName || order.driverMobile || 'Unknown'}</div>
-                         <div className="text-xs text-ink-muted">
-                           {typeof order.truckId === 'object' && order.truckId ? order.truckId.truckNumber : 'No Truck'}
-                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-brand text-sm">
-                               {order.liters.toLocaleString()}
-                            </span>
-                            <span className="text-[10px] font-bold text-ink-disabled uppercase">Liters</span>
-                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={clsx(
-                           "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold border uppercase tracking-tight",
-                           statusColors[order.status] || 'bg-gray-50 text-ink-disabled border-edge-light'
-                        )}>
-                          {order.status.replace(/_/g, ' ')}
-                        </span>
+                </thead>
+                <tbody className="divide-y divide-edge-light">
+                  {isOrdersLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td colSpan={4} className="px-5 py-3 h-12 bg-base/40" />
+                      </tr>
+                    ))
+                  ) : recentOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={4}>
+                        <EmptyState
+                          Icon={HistoryRoundedIcon}
+                          title="No dispatches yet"
+                          hint="Issue your first filling token to begin."
+                          action={
+                            <button
+                              onClick={() => setIsDrawerOpen(true)}
+                              className="inline-flex items-center gap-1.5 mt-2 h-8 px-3 bg-brand hover:bg-brand-hover text-white rounded-md text-[11px] font-semibold transition-colors"
+                            >
+                              <AddRoundedIcon sx={{ fontSize: 14 }} />
+                              Issue Token
+                            </button>
+                          }
+                        />
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="p-6 bg-surface/30 border-t border-edge-light text-center">
-             <p className="text-[10px] font-bold text-ink-disabled uppercase tracking-[0.2em]">Live Synchronization Enabled</p>
-          </div>
+                  ) : (
+                    recentOrders.map((order) => {
+                      const truckLabel =
+                        typeof order.truckId === 'object' && order.truckId ? order.truckId.truckNumber : '—';
+                      return (
+                        <tr key={order._id} className="hover:bg-base/60 transition-colors">
+                          <td className="px-5 py-2.5">
+                            <p className="text-[12px] font-mono font-semibold text-ink uppercase tracking-tight">
+                              #{order._id.slice(-6).toUpperCase()}
+                            </p>
+                            <p className="text-[10px] text-ink-muted">
+                              {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
+                          </td>
+                          <td className="px-5 py-2.5">
+                            <p className="text-sm font-medium text-ink truncate max-w-[180px]">
+                              {order.driverName || order.driverMobile || 'Unknown'}
+                            </p>
+                            <p className="text-[10px] text-ink-muted font-mono tracking-tight">{truckLabel}</p>
+                          </td>
+                          <td className="px-5 py-2.5 text-right">
+                            <span className="text-sm font-semibold text-ink tabular-nums">
+                              {order.liters.toLocaleString()}
+                            </span>
+                            <span className="ml-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider">
+                              L
+                            </span>
+                          </td>
+                          <td className="px-5 py-2.5 text-right">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                statusStyles[order.status] || 'bg-slate-100 text-ink-muted'
+                              }`}
+                            >
+                              {order.status.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </div>
 
-      {isModalOpen && (
-        <CreateOrderModal onClose={() => setIsModalOpen(false)} onRefresh={() => queryClient.invalidateQueries({ queryKey: ['recent-orders', 'wallet-balance'] })} />
-      )}
+      <CreateOrderDrawer
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onRefresh={() => {
+          queryClient.invalidateQueries({ queryKey: ['recent-orders'] });
+          queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
+        }}
+      />
+    </>
+  );
+}
+
+function MiniStat({
+  label,
+  value,
+  Icon,
+  accent = 'default',
+  currency = false,
+  loading = false,
+}: {
+  label: string;
+  value: number;
+  Icon: React.ComponentType<SvgIconProps>;
+  accent?: 'default' | 'success' | 'warning' | 'indigo';
+  currency?: boolean;
+  loading?: boolean;
+}) {
+  const tile =
+    accent === 'success'
+      ? 'bg-success-subtle text-success'
+      : accent === 'warning'
+        ? 'bg-amber-50 text-amber-600'
+        : accent === 'indigo'
+          ? 'bg-indigo-50 text-indigo-600'
+          : 'bg-base text-ink-secondary border border-edge-light';
+
+  return (
+    <div className="minimal-card p-4 flex items-center justify-between hover:border-blue-200 transition-colors">
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1">{label}</p>
+        {loading ? (
+          <div className="h-7 w-24 bg-base rounded animate-pulse" />
+        ) : (
+          <p className="text-2xl font-bold text-ink tabular-nums tracking-tight leading-none flex items-center">
+            {currency && <CurrencyRupeeRoundedIcon sx={{ fontSize: 18 }} className="text-ink-secondary" />}
+            {value.toLocaleString()}
+          </p>
+        )}
+      </div>
+      <div className={`w-9 h-9 rounded flex items-center justify-center shrink-0 ${tile}`}>
+        <Icon sx={{ fontSize: 18 }} />
+      </div>
     </div>
   );
 }
 
-function CreateOrderModal({ onClose, onRefresh }: { onClose: () => void, onRefresh: () => void }) {
+function EmptyState({
+  Icon,
+  title,
+  hint,
+  action,
+}: {
+  Icon: React.ComponentType<SvgIconProps>;
+  title: string;
+  hint: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 px-5 py-12">
+      <div className="w-10 h-10 rounded bg-base border border-edge-light flex items-center justify-center text-ink-disabled">
+        <Icon sx={{ fontSize: 20 }} />
+      </div>
+      <p className="text-sm font-medium text-ink-secondary">{title}</p>
+      <p className="text-[11px] text-ink-muted">{hint}</p>
+      {action}
+    </div>
+  );
+}
+
+function CreateOrderDrawer({
+  open,
+  onClose,
+  onRefresh,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onRefresh: () => void;
+}) {
   const [formData, setFormData] = useState({
     truckId: '',
     driverName: '',
@@ -241,31 +404,26 @@ function CreateOrderModal({ onClose, onRefresh }: { onClose: () => void, onRefre
     liters: 5000,
   });
 
-  // Fetch trucks for selection
   const { data: trucksRes } = useQuery({
     queryKey: ['contractor-trucks'],
-    queryFn: async () => {
-      const res = await api.get<any>('/truck');
-      return res;
-    },
+    queryFn: async () => api.get<any>('/truck'),
+    enabled: open,
   });
 
   const trucks: TruckOption[] = (trucksRes?.data || []).filter((t: TruckOption) => t.status === 'ACTIVE');
-
-  const selectedTruck = trucks.find(t => t._id === formData.truckId);
+  const selectedTruck = trucks.find((t) => t._id === formData.truckId);
 
   const mutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      return api.post('/orders/create', data);
-    },
+    mutationFn: async (data: typeof formData) => api.post('/orders/create', data),
     onSuccess: () => {
-      toast.success('Order dispatched successfully! SMS sent to driver.');
+      toast.success('Order dispatched. SMS sent to driver.');
+      setFormData({ truckId: '', driverName: '', driverMobile: '', liters: 5000 });
       onRefresh();
       onClose();
     },
-    onError: (err: any) => {
+    onError: (err: { message?: string }) => {
       toast.error(err.message || 'Failed to dispatch order');
-    }
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -277,119 +435,152 @@ function CreateOrderModal({ onClose, onRefresh }: { onClose: () => void, onRefre
     mutation.mutate(formData);
   };
 
+  const handleClose = () => {
+    if (mutation.isPending) return;
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-[500px] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-        <div className="px-10 py-6 border-b border-edge-light flex justify-between items-center bg-surface/30">
-          <h2 className="text-2xl font-bold text-ink flex items-center gap-3">
-            <div className="bg-blue-600 text-white p-2 rounded-xl shadow-lg shadow-blue-500/20">
-               <Droplets className="w-5 h-5" />
-            </div>
-            Issue Token
-          </h2>
-          <button onClick={onClose} className="p-2 text-ink-muted hover:text-ink hover:bg-surface rounded-full transition-all">
-             <X className="w-6 h-6" />
+    <Drawer
+      open={open}
+      onClose={handleClose}
+      size="md"
+      icon={<WaterDropOutlinedIcon sx={{ fontSize: 20 }} />}
+      title="Issue Filling Token"
+      subtitle="Reserve funds and dispatch a token to the driver."
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={mutation.isPending}
+            className="h-9 px-4 text-xs font-semibold text-ink-secondary hover:bg-base border border-edge-light rounded-md transition-colors disabled:opacity-60"
+          >
+            Cancel
           </button>
-        </div>
-        
-        <div className="px-10 py-8 overflow-y-auto">
-          <form id="create-order-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
-            {/* Truck Selection */}
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold text-ink-secondary uppercase tracking-[0.1em] ml-1">Select Tanker</label>
-              <select 
+          <button
+            form="create-order-form"
+            type="submit"
+            disabled={mutation.isPending}
+            className="h-9 px-4 text-xs font-semibold bg-brand hover:bg-brand-hover text-white rounded-md transition-all active:scale-[0.98] disabled:opacity-70 inline-flex items-center gap-1.5"
+          >
+            {mutation.isPending ? (
+              <>
+                <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Dispatching…
+              </>
+            ) : (
+              <>
+                <SendRoundedIcon sx={{ fontSize: 14 }} />
+                Authorize Dispatch
+              </>
+            )}
+          </button>
+        </>
+      }
+    >
+      <div className="px-5 py-5">
+        <form id="create-order-form" onSubmit={handleSubmit} className="flex flex-col gap-7">
+          <FormSection title="Tanker" subtitle="Choose an active tanker for this dispatch.">
+            <div className="flex flex-col gap-1.5">
+              <FormLabel required>Select Tanker</FormLabel>
+              <select
                 required
                 value={formData.truckId}
-                onChange={(e) => setFormData({...formData, truckId: e.target.value})}
-                className="w-full px-4 py-4 bg-surface/50 border border-edge-light rounded-2xl text-ink text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white transition-all appearance-none cursor-pointer"
+                onChange={(e) => setFormData({ ...formData, truckId: e.target.value })}
+                className={inputCls}
               >
-                <option value="">-- Choose available truck --</option>
-                {trucks.map(truck => (
+                <option value="">— Choose available truck —</option>
+                {trucks.map((truck) => (
                   <option key={truck._id} value={truck._id}>
                     {truck.truckNumber} — {truck.truckName} ({truck.capacity.toLocaleString()}L)
                   </option>
                 ))}
               </select>
               {trucks.length === 0 && (
-                <p className="text-[10px] text-amber-600 font-bold ml-1 uppercase tracking-wider">No active tankers found</p>
+                <p className="text-[10px] text-amber-600 font-medium leading-snug">
+                  No active tankers found. Add one from the Trucks page first.
+                </p>
               )}
             </div>
+          </FormSection>
 
-            <div className="grid grid-cols-2 gap-5">
-               <div className="space-y-2">
-                 <label className="text-[11px] font-bold text-ink-secondary uppercase tracking-[0.1em] ml-1">Driver Name</label>
-                 <input 
-                   required 
-                   type="text" 
-                   value={formData.driverName}
-                   onChange={(e) => setFormData({...formData, driverName: e.target.value})}
-                   className="w-full px-4 py-4 bg-surface/50 border border-edge-light rounded-2xl text-ink text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white transition-all" 
-                   placeholder="Ramesh Kumar" 
-                 />
-               </div>
+          <FormSection title="Driver" subtitle="Token execution link is sent via SMS.">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <FormLabel required>Driver Name</FormLabel>
+                <div className="relative">
+                  <PersonOutlineRoundedIcon
+                    sx={{ fontSize: 16 }}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-disabled pointer-events-none"
+                  />
+                  <input
+                    required
+                    type="text"
+                    value={formData.driverName}
+                    onChange={(e) => setFormData({ ...formData, driverName: e.target.value })}
+                    className={`${inputCls} pl-8`}
+                    placeholder="Ramesh Kumar"
+                  />
+                </div>
+              </div>
 
-               <div className="space-y-2">
-                 <label className="text-[11px] font-bold text-ink-secondary uppercase tracking-[0.1em] ml-1">Driver Mobile</label>
-                 <input 
-                   required 
-                   type="tel" 
-                   value={formData.driverMobile}
-                   onChange={(e) => setFormData({...formData, driverMobile: e.target.value})}
-                   className="w-full px-4 py-4 bg-surface/50 border border-edge-light rounded-2xl text-ink text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white transition-all font-mono" 
-                   placeholder="9876543210" 
-                 />
-               </div>
+              <div className="flex flex-col gap-1.5">
+                <FormLabel required>Driver Mobile</FormLabel>
+                <div className="relative">
+                  <PhoneIphoneRoundedIcon
+                    sx={{ fontSize: 16 }}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-disabled pointer-events-none"
+                  />
+                  <input
+                    required
+                    type="tel"
+                    inputMode="tel"
+                    value={formData.driverMobile}
+                    onChange={(e) => setFormData({ ...formData, driverMobile: e.target.value })}
+                    className={`${inputCls} pl-8 font-mono tracking-wide`}
+                    placeholder="98765 43210"
+                  />
+                </div>
+              </div>
             </div>
+          </FormSection>
 
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold text-ink-secondary uppercase tracking-[0.1em] ml-1">
-                Volume (Liters)
-                {selectedTruck && <span className="text-ink-disabled normal-case ml-2 font-medium">Cap: {selectedTruck.capacity.toLocaleString()}L</span>}
-              </label>
+          <FormSection title="Volume" subtitle="Cannot exceed tanker capacity.">
+            <div className="flex flex-col gap-1.5">
+              <FormLabel required>
+                Liters
+                {selectedTruck && (
+                  <span className="ml-2 text-[10px] font-normal text-ink-disabled normal-case">
+                    Max {selectedTruck.capacity.toLocaleString()} L
+                  </span>
+                )}
+              </FormLabel>
               <div className="relative">
-                 <input 
-                   required 
-                   type="number" 
-                   min="100"
-                   max={selectedTruck?.capacity}
-                   value={formData.liters}
-                   onChange={(e) => setFormData({...formData, liters: Number(e.target.value)})}
-                   className="w-full px-4 py-4 bg-surface/50 border border-edge-light rounded-2xl text-ink text-xl font-extrabold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white transition-all" 
-                 />
-                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-disabled uppercase tracking-widest">Liters</span>
+                <input
+                  required
+                  type="number"
+                  min={100}
+                  max={selectedTruck?.capacity}
+                  value={formData.liters}
+                  onChange={(e) => setFormData({ ...formData, liters: Number(e.target.value) })}
+                  className={`${inputCls} pr-12 tabular-nums`}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wider text-ink-disabled pointer-events-none">
+                  L
+                </span>
               </div>
             </div>
-            
-            <div className="bg-blue-50/50 border border-blue-100/50 p-5 rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
-                 <AlertTriangle className="w-4 h-4" />
-              </div>
-              <p className="text-[11px] text-blue-800/80 font-bold leading-relaxed uppercase tracking-tight">
-                FUNDS WILL BE AUTOMATICALLY RESERVED UPON TOKEN ISSUANCE. DRIVER WILL RECEIVE AN EXECUTION LINK VIA SMS.
-              </p>
-            </div>
-          </form>
-        </div>
-        
-        <div className="px-10 py-8 bg-surface/30 border-t border-edge-light flex justify-end gap-3">
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="px-6 py-3 text-sm font-bold text-ink-secondary hover:bg-white rounded-xl transition-all"
-          >
-            Discard
-          </button>
-          <button 
-            form="create-order-form" 
-            type="submit" 
-            disabled={mutation.isPending} 
-            className="flex items-center gap-2 px-8 py-3 text-sm font-bold bg-brand hover:bg-brand-hover text-white rounded-xl transition-all shadow-xl shadow-brand/20 active:scale-[0.98] disabled:opacity-70"
-          >
-            {mutation.isPending ? 'Processing...' : 'Authorize Dispatch'}
-            {!mutation.isPending && <Send className="w-4 h-4" />}
-          </button>
-        </div>
+          </FormSection>
+
+          <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-md bg-blue-50/60 border border-blue-100">
+            <InfoOutlinedIcon sx={{ fontSize: 16 }} className="text-brand mt-0.5 shrink-0" />
+            <p className="text-[11px] text-ink-secondary leading-relaxed">
+              Funds are reserved on token issuance. Driver receives an execution link via SMS.
+            </p>
+          </div>
+        </form>
       </div>
-    </div>
+    </Drawer>
   );
 }
