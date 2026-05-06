@@ -13,6 +13,7 @@ import LockResetRoundedIcon from '@mui/icons-material/LockResetRounded';
 
 const EMPTY_FORM = {
   name: '',
+  email: '',
   mobile: '',
   password: '',
 };
@@ -42,6 +43,7 @@ export default function CreateContractorDrawer({
     mutationFn: (data: FormData) =>
       api.post('/pmc/contractor', {
         name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
         mobile: data.mobile.trim(),
         password: data.password,
       }),
@@ -120,6 +122,20 @@ export default function CreateContractorDrawer({
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={inputCls}
                   placeholder="Ramesh Transporters"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <FormLabel required>Email Address</FormLabel>
+                <input
+                  required
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className={inputCls}
+                  placeholder="contractor@example.com"
                 />
               </div>
 
