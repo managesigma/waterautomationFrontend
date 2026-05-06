@@ -21,7 +21,7 @@ api.interceptors.request.use(
       // Check if it's the login route
       if (!config.baseURL && typeof window !== 'undefined') {
          // Default to an initial central auth service via env, or assume same domain /api/v1
-         config.baseURL = process.env.NEXT_PUBLIC_CENTRAL_API_URL || ' http://localhost:4000/api/v1';
+         config.baseURL = process.env.NEXT_PUBLIC_CENTRAL_API_URL || 'http://34.204.174.3:3000/api/v1';
       }
     }
 //http://34.204.174.3:4000/
