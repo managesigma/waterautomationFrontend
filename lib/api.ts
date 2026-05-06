@@ -24,7 +24,7 @@ api.interceptors.request.use(
          config.baseURL = process.env.NEXT_PUBLIC_CENTRAL_API_URL || 'http://34.204.174.3:3000/api/v1';
       }
     }
-//http://34.204.174.3:3000/
+//http://34.204.174.3:4000/
     if (jwt) {
       config.headers.Authorization = `Bearer ${jwt}`;
     }

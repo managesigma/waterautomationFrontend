@@ -20,6 +20,7 @@ export interface SlaveDevice {
   pmcId: string;
   stationId: string;
   masterId: string;
+  slaveDeviceId: string;
   poleId: string;
   firmwareVersion: string;
   status: 'ONLINE' | 'OFFLINE';

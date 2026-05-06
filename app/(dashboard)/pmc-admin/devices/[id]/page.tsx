@@ -1,345 +1,365 @@
 'use client';
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { deviceService } from '../../../../../lib/services/deviceService';
-import { 
-  Server, 
-  Cpu, 
-  ArrowLeft, 
-  Plus, 
-  Settings, 
-  Trash2, 
-  Activity, 
-  Wifi, 
-  WifiOff,
-  Clock,
-  ChevronRight,
-  Monitor,
-  Box
-} from 'lucide-react';
-import { toast } from 'sonner';
 import { SlaveDevice } from '../../../../../types/device';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
+import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import RouterOutlinedIcon from '@mui/icons-material/RouterOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
+import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import PowerSettingsNewRoundedIcon from '@mui/icons-material/PowerSettingsNewRounded';
+import DevicesOtherOutlinedIcon from '@mui/icons-material/DevicesOtherOutlined';
+import { SvgIconProps } from '@mui/material/SvgIcon';
 
 export default function MasterDeviceDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isSlaveModalOpen, setIsSlaveModalOpen] = useState(false);
 
-  const { data: masterRes, isLoading: masterLoading } = useQuery({
+  const { data: masterRes, isLoading: masterLoading, refetch: refetchMaster, isFetching: masterFetching } = useQuery({
     queryKey: ['master-device', id],
     queryFn: () => deviceService.getMasterById(id as string),
     enabled: !!id,
   });
 
-  const { data: slavesRes, isLoading: slavesLoading } = useQuery({
+  const {
+    data: slavesRes,
+    isLoading: slavesLoading,
+    refetch: refetchSlaves,
+    isFetching: slavesFetching,
+  } = useQuery({
     queryKey: ['master-slaves', id],
     queryFn: () => deviceService.getSlavesByMaster(id as string),
     enabled: !!id,
   });
 
   const master = masterRes?.data;
-  const slaves = slavesRes?.data || [];
+  const slaves: SlaveDevice[] = slavesRes?.data || [];
+  const onlineSlaves = slaves.filter((s) => s.status === 'ONLINE').length;
+  const isFetching = masterFetching || slavesFetching;
 
-  const deleteSlaveMutation = useMutation({
-    mutationFn: (slaveId: string) => deviceService.deleteSlave(slaveId),
-    onSuccess: () => {
-      toast.success('Slave device deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['master-slaves', id] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to delete slave');
-    }
-  });
+  const handleRefresh = () => {
+    refetchMaster();
+    refetchSlaves();
+  };
 
   if (masterLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-        <p className="text-gray-500 text-sm animate-pulse">Loading device details...</p>
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-8 h-8 border-2 border-edge-light border-t-brand rounded-full animate-spin" />
+        <p className="text-xs text-ink-muted">Loading device details…</p>
       </div>
     );
   }
 
   if (!master) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4 bg-white rounded-xl border border-dashed border-gray-200">
-        <Monitor className="w-12 h-12 text-gray-300" />
-        <p className="text-gray-500 font-medium">Master device not found.</p>
-        <button onClick={() => router.back()} className="text-blue-600 text-sm hover:underline">Go back</button>
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="minimal-card p-12 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="w-12 h-12 rounded-md bg-base border border-edge-light flex items-center justify-center text-ink-disabled">
+            <HubOutlinedIcon sx={{ fontSize: 22 }} />
+          </div>
+          <p className="text-sm font-medium text-ink-secondary">Master device not found</p>
+          <p className="text-[11px] text-ink-muted">This device may have been removed or is unavailable.</p>
+          <button
+            onClick={() => router.back()}
+            className="mt-2 inline-flex items-center gap-1.5 h-8 px-3 bg-brand hover:bg-brand-hover text-white rounded-md text-[11px] font-semibold transition-colors"
+          >
+            <ArrowBackRoundedIcon sx={{ fontSize: 14 }} />
+            Go back
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-[1200px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center gap-4">
-        <button 
-          onClick={() => router.back()}
-          className="p-2 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all text-gray-500 group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{master.masterName}</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="font-mono text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">{master.masterId}</span>
-            <span className="text-gray-300">•</span>
-            <span className={`flex items-center gap-1.5 text-xs font-semibold ${master.status === 'ONLINE' ? 'text-green-600' : 'text-red-500'}`}>
-              <div className={`w-2 h-2 rounded-full ${master.status === 'ONLINE' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-              {master.status}
-            </span>
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
+      {/* Hero header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
+        <div className="flex items-start gap-3 min-w-0">
+          <button
+            onClick={() => router.back()}
+            className="mt-1 h-8 w-8 inline-flex items-center justify-center rounded-md border border-edge-light bg-surface text-ink-muted hover:text-ink hover:border-blue-200 hover:bg-brand-subtle/40 transition-all shrink-0"
+            title="Back"
+          >
+            <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
+          </button>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
+              Operations → Devices → Detail
+            </p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl font-bold text-ink tracking-tight truncate">{master.masterName}</h1>
+              <StatusPill status={master.status} />
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted bg-base border border-edge-light rounded px-1.5 py-0.5">
+                <VisibilityOutlinedIcon sx={{ fontSize: 12 }} />
+                Read-only
+              </span>
+            </div>
+            <p className="text-sm text-ink-muted mt-1 font-mono tracking-tight">{master.masterId}</p>
           </div>
         </div>
+
+        <button
+          onClick={handleRefresh}
+          className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all self-start md:self-auto"
+        >
+          <RefreshRoundedIcon sx={{ fontSize: 16 }} className={isFetching ? 'animate-spin' : ''} />
+          Refresh
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Device Info Card */}
-        <div className="flex flex-col gap-6">
-           <div className="minimal-card p-6 bg-white border border-gray-100 rounded-xl shadow-sm">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
-                 <h2 className="font-bold text-gray-900 text-sm uppercase tracking-wider">System Details</h2>
-                 <Settings className="w-4 h-4 text-gray-400" />
-              </div>
-              
-              <div className="flex flex-col gap-5">
-                 <DetailItem label="Station ID" value={master.stationId} />
-                 <DetailItem label="IP Address" value={master.ipAddress} />
-                 <DetailItem label="Firmware" value={master.firmwareVersion} />
-                 <DetailItem label="Last Seen" value={new Date(master.lastSeenAt).toLocaleString()} />
-                 <DetailItem label="Registered On" value={new Date(master.createdAt).toLocaleDateString()} />
-              </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <MiniStat
+          label="Master Status"
+          value={master.status === 'ONLINE' ? 'Online' : 'Offline'}
+          Icon={master.status === 'ONLINE' ? VerifiedOutlinedIcon : PowerSettingsNewRoundedIcon}
+          accent={master.status === 'ONLINE' ? 'success' : 'muted'}
+        />
+        <MiniStat label="Connected Slaves" value={slaves.length.toString()} Icon={SensorsOutlinedIcon} />
+        <MiniStat label="Slaves Online" value={onlineSlaves.toString()} Icon={VerifiedOutlinedIcon} accent="success" />
+        <MiniStat label="Firmware" value={master.firmwareVersion} Icon={DevicesOtherOutlinedIcon} mono />
+      </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-100 flex gap-3">
-                 <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold transition-colors border border-gray-100">
-                    <Activity className="w-4 h-4" />
-                    Diagnostics
-                 </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* System details */}
+        <aside className="lg:col-span-1 minimal-card overflow-hidden flex flex-col">
+          <div className="px-5 py-3 border-b border-edge-light flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-ink">System Details</h2>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Master</span>
+          </div>
+          <dl className="px-5 py-4 flex flex-col divide-y divide-edge-light">
+            <DetailRow Icon={LocationOnOutlinedIcon} label="Station ID" value={master.stationId} mono />
+            <DetailRow Icon={RouterOutlinedIcon} label="IP Address" value={master.ipAddress} mono code />
+            <DetailRow Icon={DevicesOtherOutlinedIcon} label="Firmware" value={master.firmwareVersion} mono />
+            <DetailRow
+              Icon={AccessTimeRoundedIcon}
+              label="Last Seen"
+              value={new Date(master.lastSeenAt).toLocaleString()}
+            />
+            <DetailRow
+              Icon={EventAvailableOutlinedIcon}
+              label="Registered"
+              value={new Date(master.createdAt).toLocaleDateString()}
+            />
+          </dl>
+        </aside>
+
+        {/* Slaves table */}
+        <section className="lg:col-span-2 minimal-card overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-edge-light">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <SensorsOutlinedIcon sx={{ fontSize: 16 }} />
               </div>
-           </div>
-        </div>
+              <div className="min-w-0">
+                <h2 className="text-sm font-semibold text-ink leading-tight">Connected Slaves</h2>
+                <p className="text-[10px] text-ink-muted">
+                  {slavesLoading ? 'Loading…' : `${slaves.length} device${slaves.length === 1 ? '' : 's'}`}
+                </p>
+              </div>
+            </div>
+          </div>
 
-        {/* Slaves Management */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-           <div className="flex items-center justify-between bg-white/50 p-2 rounded-xl border border-transparent">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3 pl-2">
-                 <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                    <Cpu className="w-5 h-5" />
-                 </div>
-                 Connected Slaves 
-                 <span className="text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full ml-1">{slaves.length}</span>
-              </h2>
-              <button
-                onClick={() => setIsSlaveModalOpen(true)}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-blue-200 active:scale-95"
-              >
-                <Plus className="w-4 h-4" />
-                Add Slave
-              </button>
-           </div>
-
-           <div className="minimal-card overflow-hidden bg-white border border-gray-100 rounded-xl shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50">
-                    <th className="px-6 py-4 font-medium">Pole / ID</th>
-                    <th className="px-6 py-4 font-medium text-center">Status</th>
-                    <th className="px-6 py-4 font-medium">Firmware</th>
-                    <th className="px-6 py-4 font-medium">Last Activity</th>
-                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider border-b border-edge-light">
+                  <th className="px-5 py-2.5">Pole / ID</th>
+                  <th className="px-5 py-2.5">Station</th>
+                  <th className="px-5 py-2.5">Firmware</th>
+                  <th className="px-5 py-2.5">Last Activity</th>
+                  <th className="px-5 py-2.5 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-edge-light">
+                {slavesLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td colSpan={5} className="px-5 py-3 h-12 bg-base/40" />
+                    </tr>
+                  ))
+                ) : slaves.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>
+                      <EmptyState
+                        Icon={SensorsOutlinedIcon}
+                        title="No slave devices"
+                        hint="No slaves are currently registered to this master."
+                      />
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {slavesLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <tr key={i} className="animate-pulse">
-                        <td colSpan={5} className="px-6 py-5 h-16 bg-gray-50/50" />
-                      </tr>
-                    ))
-                  ) : slaves.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-16 text-center">
-                        <div className="flex flex-col items-center gap-3 grayscale opacity-60">
-                           <Box className="w-10 h-10 text-gray-300" />
-                           <p className="text-sm text-gray-500 font-medium">No slave devices connected to this master.</p>
+                ) : (
+                  slaves.map((slave) => (
+                    <tr key={slave._id} className="hover:bg-base/60 transition-colors">
+                      <td className="px-5 py-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-8 h-8 rounded flex items-center justify-center border ${
+                              slave.status === 'ONLINE'
+                                ? 'bg-success-subtle text-success border-emerald-200'
+                                : 'bg-base text-ink-secondary border-edge-light'
+                            }`}
+                          >
+                            <SensorsOutlinedIcon sx={{ fontSize: 16 }} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-ink font-mono tracking-tight truncate">
+                              {slave.poleId}
+                            </p>
+                            <p className="text-[10px] text-ink-muted font-mono uppercase tracking-tight">
+                              ID · {slave._id.slice(-8).toUpperCase()}
+                            </p>
+                          </div>
                         </div>
                       </td>
+                      <td className="px-5 py-2.5">
+                        <span className="text-[12px] text-ink-secondary font-mono tracking-tight">
+                          {slave.stationId}
+                        </span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <span className="px-2 py-0.5 bg-base text-ink-secondary border border-edge-light rounded text-[10px] font-semibold">
+                          {slave.firmwareVersion}
+                        </span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <div className="inline-flex items-center gap-1.5 text-[11px] text-ink-secondary">
+                          <AccessTimeRoundedIcon sx={{ fontSize: 12 }} className="text-ink-disabled" />
+                          {new Date(slave.lastSeenAt).toLocaleString([], {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </div>
+                      </td>
+                      <td className="px-5 py-2.5 text-right">
+                        <StatusPill status={slave.status} />
+                      </td>
                     </tr>
-                  ) : (
-                    slaves.map((slave: SlaveDevice) => (
-                      <tr key={slave._id} className="hover:bg-gray-50 transition-colors group">
-                        <td className="px-6 py-4">
-                           <div className="flex flex-col">
-                              <span className="text-sm font-bold text-gray-900 font-mono tracking-tight">{slave.poleId}</span>
-                              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">ID: {slave._id.slice(-8)}</span>
-                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
-                            slave.status === 'ONLINE' 
-                              ? 'bg-green-50 text-green-700 border-green-100' 
-                              : 'bg-red-50 text-red-600 border-red-100'
-                          }`}>
-                            {slave.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                           <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px] font-bold">
-                             {slave.firmwareVersion}
-                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-xs text-gray-500">
-                           <div className="flex items-center gap-1.5 font-medium">
-                              <Clock className="w-3.5 h-3.5 text-gray-300" />
-                              {new Date(slave.lastSeenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                           <div className="flex items-center justify-end gap-1">
-                              <button 
-                                onClick={() => {
-                                  if(confirm('Permanently delete this slave device?')) deleteSlaveMutation.mutate(slave._id);
-                                }}
-                                className="p-2 text-gray-300 hover:text-red-600 rounded-lg hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                           </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-           </div>
-        </div>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-
-      {isSlaveModalOpen && (
-        <RegisterSlaveModal 
-          masterId={id as string} 
-          onClose={() => setIsSlaveModalOpen(false)} 
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['master-slaves', id] });
-            setIsSlaveModalOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
 
-function DetailItem({ label, value }: { label: string, value: string }) {
+function MiniStat({
+  label,
+  value,
+  Icon,
+  accent = 'default',
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  Icon: React.ComponentType<SvgIconProps>;
+  accent?: 'default' | 'success' | 'muted';
+  mono?: boolean;
+}) {
+  const iconWrap =
+    accent === 'success'
+      ? 'bg-success-subtle text-success'
+      : accent === 'muted'
+        ? 'bg-base text-ink-muted border border-edge-light'
+        : 'bg-base text-ink-secondary border border-edge-light';
+
   return (
-    <div className="flex flex-col gap-1.5">
-       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
-       <span className="text-sm font-semibold text-gray-800">{value}</span>
+    <div className="minimal-card p-4 flex items-center justify-between hover:border-blue-200 transition-colors">
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1">{label}</p>
+        <p
+          className={`text-xl font-bold text-ink tracking-tight leading-none truncate ${
+            mono ? 'font-mono text-base' : 'tabular-nums'
+          }`}
+        >
+          {value}
+        </p>
+      </div>
+      <div className={`w-9 h-9 rounded flex items-center justify-center shrink-0 ${iconWrap}`}>
+        <Icon sx={{ fontSize: 18 }} />
+      </div>
     </div>
   );
 }
 
-function RegisterSlaveModal({ masterId, onClose, onSuccess }: { masterId: string, onClose: () => void, onSuccess: () => void }) {
-  const [formData, setFormData] = useState({
-    slaveDeviceId: '',
-    firmwareVersion: 'v1.0.0',
-    stationId: '',
-    poleId: ''
-  });
-
-  const mutation = useMutation({
-    mutationFn: (data: any) => deviceService.registerSlaves(masterId, { slaves: data }),
-    onSuccess: () => {
-      toast.success('Slave device registered successfully');
-      onSuccess();
-    },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to register slave device');
-    }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    mutation.mutate(formData);
-  };
-
+function DetailRow({
+  Icon,
+  label,
+  value,
+  mono = false,
+  code = false,
+}: {
+  Icon: React.ComponentType<SvgIconProps>;
+  label: string;
+  value: string;
+  mono?: boolean;
+  code?: boolean;
+}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-[450px] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-        <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-             <Plus className="w-5 h-5 text-blue-600" />
-             Register Slave Device
-          </h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all">
-             <Plus className="w-5 h-5 rotate-45 transform" />
-          </button>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
-           <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Slave Device ID</label>
-              <input 
-                required 
-                value={formData.slaveDeviceId}
-                onChange={(e) => setFormData({...formData, slaveDeviceId: e.target.value})}
-                className="px-4 py-3 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50/50" 
-                placeholder="e.g. SLAVE_001" 
-              />
-           </div>
-
-           <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Station ID</label>
-                <input 
-                  required 
-                  value={formData.stationId}
-                  onChange={(e) => setFormData({...formData, stationId: e.target.value})}
-                  className="px-4 py-3 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50/50" 
-                  placeholder="STATION_01" 
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Pole ID</label>
-                <input 
-                  required 
-                  value={formData.poleId}
-                  onChange={(e) => setFormData({...formData, poleId: e.target.value})}
-                  className="px-4 py-3 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50/50" 
-                  placeholder="POLE_A1" 
-                />
-              </div>
-           </div>
-
-           <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Firmware Version</label>
-              <input 
-                required 
-                value={formData.firmwareVersion}
-                onChange={(e) => setFormData({...formData, firmwareVersion: e.target.value})}
-                className="px-4 py-3 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-gray-50/50 font-mono" 
-              />
-           </div>
-
-           <div className="mt-4 flex justify-end gap-3">
-              <button 
-                type="button" 
-                onClick={onClose} 
-                className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                disabled={mutation.isPending}
-                className="px-8 py-2.5 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:scale-100"
-              >
-                {mutation.isPending ? 'Registering...' : 'Register Device'}
-              </button>
-           </div>
-        </form>
+    <div className="py-3 first:pt-0 last:pb-0 flex items-start gap-3">
+      <div className="w-7 h-7 rounded bg-base border border-edge-light flex items-center justify-center text-ink-secondary shrink-0">
+        <Icon sx={{ fontSize: 14 }} />
       </div>
+      <div className="min-w-0 flex-1">
+        <dt className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">{label}</dt>
+        <dd className={`mt-0.5 text-sm text-ink ${mono ? 'font-mono tracking-tight' : ''} truncate`}>
+          {code ? (
+            <code className="text-[12px] font-mono text-ink-secondary bg-base px-1.5 py-0.5 rounded border border-edge-light">
+              {value}
+            </code>
+          ) : (
+            value
+          )}
+        </dd>
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  const isOnline = status === 'ONLINE';
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold ${
+        isOnline ? 'bg-success-subtle text-success' : 'bg-slate-100 text-ink-muted'
+      }`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-success' : 'bg-slate-400'}`} />
+      {isOnline ? 'Online' : 'Offline'}
+    </span>
+  );
+}
+
+function EmptyState({
+  Icon,
+  title,
+  hint,
+}: {
+  Icon: React.ComponentType<SvgIconProps>;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 px-5 py-14">
+      <div className="w-10 h-10 rounded bg-base border border-edge-light flex items-center justify-center text-ink-disabled">
+        <Icon sx={{ fontSize: 20 }} />
+      </div>
+      <p className="text-sm font-medium text-ink-secondary">{title}</p>
+      <p className="text-[11px] text-ink-muted">{hint}</p>
     </div>
   );
 }
