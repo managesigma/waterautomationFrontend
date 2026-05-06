@@ -180,11 +180,14 @@ export default function DriverOrderPage({
                 <input
                   id="poleId"
                   type="text"
-                  inputMode="numeric"
                   value={poleId}
-                  onChange={(e) => setPoleId(e.target.value.trim())}
-                  className="mt-1 w-full text-center text-3xl font-bold tracking-[0.2em] py-4 border border-edge-light rounded-lg bg-surface text-ink focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-ink-disabled placeholder:font-normal placeholder:tracking-normal"
-                  placeholder="Enter ID"
+                  onChange={(e) => setPoleId(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  maxLength={32}
+                  className="mt-1 w-full text-center text-2xl font-bold tracking-widest py-4 border border-edge-light rounded-lg bg-surface text-ink focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-ink-disabled placeholder:font-normal placeholder:tracking-normal"
+                  placeholder="e.g. POLE-01"
                   autoFocus
                 />
               </div>
