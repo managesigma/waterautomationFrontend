@@ -18,7 +18,19 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
 import PowerSettingsNewRoundedIcon from '@mui/icons-material/PowerSettingsNewRounded';
 import PhoneInTalkOutlinedIcon from '@mui/icons-material/PhoneInTalkOutlined';
+import ShowChartRoundedIcon from '@mui/icons-material/ShowChartRounded';
 import CreateContractorDrawer from './_components/CreateContractorDrawer';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from 'recharts';
 
 interface Contractor {
   _id: string;
@@ -31,6 +43,56 @@ interface Contractor {
 }
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
+
+// TODO: Replace with real backend data from a route like GET /analytics/pmc/volume
+const mockWaterDispersed = [
+  { day: 'Mon', liters: 45000 },
+  { day: 'Tue', liters: 52000 },
+  { day: 'Wed', liters: 38000 },
+  { day: 'Thu', liters: 61000 },
+  { day: 'Fri', liters: 59000 },
+  { day: 'Sat', liters: 42000 },
+  { day: 'Sun', liters: 48000 },
+];
+
+// TODO: Replace with real backend data from a route like GET /analytics/pmc/trucks
+const mockActiveTrucks = [
+  { day: 'Mon', count: 18 },
+  { day: 'Tue', count: 22 },
+  { day: 'Wed', count: 19 },
+  { day: 'Thu', count: 24 },
+  { day: 'Fri', count: 25 },
+  { day: 'Sat', count: 15 },
+  { day: 'Sun', count: 12 },
+];
+
+const CustomAreaTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-surface border border-edge-light rounded shadow-sm p-2 flex flex-col gap-1 text-xs">
+        <p className="font-semibold text-ink">{label}</p>
+        <p className="text-brand tabular-nums font-medium">
+          {payload[0].value.toLocaleString()} L
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomBarTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-surface border border-edge-light rounded shadow-sm p-2 flex flex-col gap-1 text-xs">
+        <p className="font-semibold text-ink">{label}</p>
+        <p className="text-indigo-600 tabular-nums font-medium">
+          {payload[0].value} Active
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function PmcAdminDashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -59,34 +121,7 @@ export default function PmcAdminDashboard() {
   return (
     <>
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-        {/* Hero header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-              Operations → Contractors
-            </p>
-            <h1 className="text-2xl font-bold text-ink tracking-tight">Contractor Management</h1>
-            <p className="text-sm text-ink-muted mt-1">
-              Onboard and oversee fleet contractors operating under this municipality.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 self-start md:self-auto">
-            <Link
-              href="/pmc-admin/devices"
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all"
-            >
-              <DnsOutlinedIcon sx={{ fontSize: 16 }} />
-              Manage Devices
-            </Link>
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98]"
-            >
-              <PersonAddAltRoundedIcon sx={{ fontSize: 16 }} />
-              Add Contractor
-            </button>
-          </div>
-        </div>
+
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -99,6 +134,92 @@ export default function PmcAdminDashboard() {
             Icon={AccountBalanceWalletOutlinedIcon}
             currency
           />
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Water Dispersed Chart */}
+          <section className="lg:col-span-8 minimal-card flex flex-col p-5">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <ShowChartRoundedIcon sx={{ fontSize: 16 }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-ink leading-tight">Weekly Dispensing Volume</h2>
+                <p className="text-[10px] text-ink-muted">Total liters processed across all contractors</p>
+              </div>
+            </div>
+            <div className="h-56 w-full mt-auto">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={mockWaterDispersed} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorWater" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1c75bc" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#1c75bc" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    tickFormatter={(value) => `${value / 1000}k`}
+                  />
+                  <RechartsTooltip content={<CustomAreaTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="liters"
+                    stroke="#1c75bc"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorWater)"
+                    animationDuration={1500}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          {/* Active Trucks Chart */}
+          <section className="lg:col-span-4 minimal-card flex flex-col p-5">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-7 h-7 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-ink leading-tight">Daily Fleet Activity</h2>
+                <p className="text-[10px] text-ink-muted">Number of active trucks</p>
+              </div>
+            </div>
+            <div className="h-56 w-full mt-auto">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={mockActiveTrucks} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                  />
+                  <RechartsTooltip cursor={{ fill: '#f1f5f9' }} content={<CustomBarTooltip />} />
+                  <Bar dataKey="count" fill="#4f46e5" radius={[4, 4, 0, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
         </div>
 
         {/* Table */}
@@ -146,6 +267,22 @@ export default function PmcAdminDashboard() {
                 title="Filter"
               >
                 <FilterListRoundedIcon sx={{ fontSize: 16 }} />
+              </button>
+
+              <Link
+                href="/pmc-admin/devices"
+                className="inline-flex items-center gap-1.5 h-8 px-3 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all shrink-0"
+              >
+                <DnsOutlinedIcon sx={{ fontSize: 14 }} />
+                Devices
+              </Link>
+
+              <button
+                onClick={() => setIsDrawerOpen(true)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98] shrink-0"
+              >
+                <PersonAddAltRoundedIcon sx={{ fontSize: 14 }} />
+                Add Contractor
               </button>
             </div>
           </div>
@@ -291,16 +428,16 @@ function MiniStat({
       : 'bg-base text-ink-secondary border border-edge-light';
 
   return (
-    <div className="minimal-card p-4 flex items-center justify-between hover:border-blue-200 transition-colors">
+    <div className="minimal-card p-3 flex items-center justify-between hover:border-blue-200 transition-colors">
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1">{label}</p>
-        <p className="text-2xl font-bold text-ink tabular-nums tracking-tight leading-none flex items-center">
-          {currency && <CurrencyRupeeRoundedIcon sx={{ fontSize: 18 }} className="text-ink-secondary" />}
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">{label}</p>
+        <p className="text-lg font-bold text-ink tabular-nums tracking-tight leading-none flex items-center">
+          {currency && <CurrencyRupeeRoundedIcon sx={{ fontSize: 14 }} className="text-ink-secondary" />}
           {value.toLocaleString()}
         </p>
       </div>
-      <div className={`w-9 h-9 rounded flex items-center justify-center shrink-0 ${iconWrap}`}>
-        <Icon sx={{ fontSize: 18 }} />
+      <div className={`w-7 h-7 rounded flex items-center justify-center shrink-0 ${iconWrap}`}>
+        <Icon sx={{ fontSize: 14 }} />
       </div>
     </div>
   );

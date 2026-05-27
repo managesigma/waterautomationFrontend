@@ -2,6 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useHeaderStore } from '@/store/headerStore';
 import { deviceService } from '../../../../../lib/services/deviceService';
 import { SlaveDevice } from '../../../../../types/device';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -21,6 +23,7 @@ import { SvgIconProps } from '@mui/material/SvgIcon';
 export default function MasterDeviceDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { setHeader, resetHeader } = useHeaderStore();
 
   const { data: masterRes, isLoading: masterLoading, refetch: refetchMaster, isFetching: masterFetching } = useQuery({
     queryKey: ['master-device', id],
@@ -43,6 +46,17 @@ export default function MasterDeviceDetailPage() {
   const slaves: SlaveDevice[] = slavesRes?.data || [];
   const onlineSlaves = slaves.filter((s) => s.status === 'ONLINE').length;
   const isFetching = masterFetching || slavesFetching;
+
+  useEffect(() => {
+    if (master) {
+      setHeader({
+        title: master.masterName || 'Device Detail',
+        subtitle: master.masterId || 'Monitor telemetry and connected slave sensors.',
+        category: 'Operations → Devices → Detail',
+      });
+    }
+    return () => resetHeader();
+  }, [master, setHeader, resetHeader]);
 
   const handleRefresh = () => {
     refetchMaster();
@@ -81,35 +95,25 @@ export default function MasterDeviceDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-      {/* Hero header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-        <div className="flex items-start gap-3 min-w-0">
+      {/* Action bar */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => router.back()}
-            className="mt-1 h-8 w-8 inline-flex items-center justify-center rounded-md border border-edge-light bg-surface text-ink-muted hover:text-ink hover:border-blue-200 hover:bg-brand-subtle/40 transition-all shrink-0"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-edge-light bg-surface text-ink-muted hover:text-ink hover:border-blue-200 hover:bg-brand-subtle/40 transition-all shrink-0"
             title="Back"
           >
             <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
           </button>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-              Operations → Devices → Detail
-            </p>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl font-bold text-ink tracking-tight truncate">{master.masterName}</h1>
-              <StatusPill status={master.status} />
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted bg-base border border-edge-light rounded px-1.5 py-0.5">
-                <VisibilityOutlinedIcon sx={{ fontSize: 12 }} />
-                Read-only
-              </span>
-            </div>
-            <p className="text-sm text-ink-muted mt-1 font-mono tracking-tight">{master.masterId}</p>
-          </div>
+          <StatusPill status={master.status} />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted bg-base border border-edge-light rounded px-1.5 py-0.5">
+            <VisibilityOutlinedIcon sx={{ fontSize: 12 }} />
+            Read-only
+          </span>
         </div>
-
         <button
           onClick={handleRefresh}
-          className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all self-start md:self-auto"
+          className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all"
         >
           <RefreshRoundedIcon sx={{ fontSize: 16 }} className={isFetching ? 'animate-spin' : ''} />
           Refresh
@@ -278,19 +282,19 @@ function MiniStat({
         : 'bg-base text-ink-secondary border border-edge-light';
 
   return (
-    <div className="minimal-card p-4 flex items-center justify-between hover:border-blue-200 transition-colors">
+    <div className="minimal-card p-3 flex items-center justify-between hover:border-blue-200 transition-colors">
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">{label}</p>
         <p
-          className={`text-xl font-bold text-ink tracking-tight leading-none truncate ${
-            mono ? 'font-mono text-base' : 'tabular-nums'
+          className={`text-lg font-bold text-ink tracking-tight leading-none truncate ${
+            mono ? 'font-mono text-sm' : 'tabular-nums'
           }`}
         >
           {value}
         </p>
       </div>
-      <div className={`w-9 h-9 rounded flex items-center justify-center shrink-0 ${iconWrap}`}>
-        <Icon sx={{ fontSize: 18 }} />
+      <div className={`w-7 h-7 rounded flex items-center justify-center shrink-0 ${iconWrap}`}>
+        <Icon sx={{ fontSize: 14 }} />
       </div>
     </div>
   );

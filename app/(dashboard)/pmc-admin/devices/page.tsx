@@ -41,25 +41,7 @@ export default function PmcDevicesPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-      {/* Hero header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-            Operations → Devices
-          </p>
-          <h1 className="text-2xl font-bold text-ink tracking-tight">Device Management</h1>
-          <p className="text-sm text-ink-muted mt-1">
-            Monitor and manage master and slave devices across all stations.
-          </p>
-        </div>
-        <button
-          onClick={() => refetch()}
-          className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all self-start md:self-auto"
-        >
-          <RefreshRoundedIcon sx={{ fontSize: 16 }} className={isFetching ? 'animate-spin' : ''} />
-          Refresh
-        </button>
-      </div>
+
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -118,6 +100,14 @@ export default function PmcDevicesPage() {
               title="Filter"
             >
               <FilterListRoundedIcon sx={{ fontSize: 16 }} />
+            </button>
+
+            <button
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all shrink-0"
+            >
+              <RefreshRoundedIcon sx={{ fontSize: 14 }} className={isFetching ? 'animate-spin' : ''} />
+              Refresh
             </button>
           </div>
         </div>
@@ -234,13 +224,13 @@ function MiniStat({
         : 'bg-base text-ink-secondary border border-edge-light';
 
   return (
-    <div className="minimal-card p-4 flex items-center justify-between hover:border-blue-200 transition-colors">
+    <div className="minimal-card p-3 flex items-center justify-between hover:border-blue-200 transition-colors">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1">{label}</p>
-        <p className="text-2xl font-bold text-ink tabular-nums tracking-tight leading-none">{value}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">{label}</p>
+        <p className="text-lg font-bold text-ink tabular-nums tracking-tight leading-none">{value}</p>
       </div>
-      <div className={`w-9 h-9 rounded flex items-center justify-center ${tile}`}>
-        <Icon sx={{ fontSize: 18 }} />
+      <div className={`w-7 h-7 rounded flex items-center justify-center shrink-0 ${tile}`}>
+        <Icon sx={{ fontSize: 14 }} />
       </div>
     </div>
   );

@@ -118,33 +118,22 @@ export default function TrucksPage() {
   return (
     <>
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-        {/* Hero */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-              Operations → Tankers
-            </p>
-            <h1 className="text-2xl font-bold text-ink tracking-tight">Tanker Fleet</h1>
-            <p className="text-sm text-ink-muted mt-1">
-              Register, monitor and manage tankers across your operations.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 self-start md:self-auto">
-            <button
-              onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all"
-            >
-              <RefreshRoundedIcon sx={{ fontSize: 16 }} className={isFetching ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-            <button
-              onClick={handleAdd}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98]"
-            >
-              <AddRoundedIcon sx={{ fontSize: 16 }} />
-              Add Truck
-            </button>
-          </div>
+        {/* Action bar */}
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-surface border border-edge-light hover:border-blue-200 hover:bg-brand-subtle/40 hover:text-brand text-ink-secondary rounded-md text-xs font-semibold transition-all"
+          >
+            <RefreshRoundedIcon sx={{ fontSize: 16 }} className={isFetching ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+          <button
+            onClick={handleAdd}
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98]"
+          >
+            <AddRoundedIcon sx={{ fontSize: 16 }} />
+            Add Truck
+          </button>
         </div>
 
         {/* Stats */}
