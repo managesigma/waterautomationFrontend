@@ -22,6 +22,22 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import PhoneIphoneRoundedIcon from '@mui/icons-material/PhoneIphoneRounded';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import LocalDrinkRoundedIcon from '@mui/icons-material/LocalDrinkRounded';
+import ShowChartRoundedIcon from '@mui/icons-material/ShowChartRounded';
+import DonutLargeRoundedIcon from '@mui/icons-material/DonutLargeRounded';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 interface Order {
   _id: string;
@@ -62,6 +78,39 @@ const statusStyles: Record<string, string> = {
   EXPIRED: 'bg-orange-50 text-orange-700',
 };
 
+// TODO: Replace with real backend data from a route like GET /analytics/contractor/volume
+// Example: const { data: volumeData } = useQuery({ queryKey: ['volume-stats'], queryFn: ... })
+const mockWeeklyVolume = [
+  { day: 'Mon', volume: 12000 },
+  { day: 'Tue', volume: 14500 },
+  { day: 'Wed', volume: 9000 },
+  { day: 'Thu', volume: 16000 },
+  { day: 'Fri', volume: 21000 },
+  { day: 'Sat', volume: 18000 },
+  { day: 'Sun', volume: 22000 },
+];
+
+// TODO: Replace with real backend data from a route like GET /analytics/contractor/fleet
+const mockFleetStatus = [
+  { name: 'Active', value: 12, color: '#1c75bc' },
+  { name: 'Maintenance', value: 2, color: '#f59e0b' },
+  { name: 'Idle', value: 4, color: '#94a3b8' },
+];
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-surface border border-edge-light rounded shadow-sm p-2 flex flex-col gap-1 text-xs">
+        <p className="font-semibold text-ink">{label}</p>
+        <p className="text-brand tabular-nums font-medium">
+          {payload[0].value.toLocaleString()} L
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function ContractorDashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -90,25 +139,7 @@ export default function ContractorDashboard() {
   return (
     <>
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-        {/* Hero */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-              Operations → Dashboard
-            </p>
-            <h1 className="text-2xl font-bold text-ink tracking-tight">Fleet Operations</h1>
-            <p className="text-sm text-ink-muted mt-1">
-              Real-time tanker dispatch and financial oversight.
-            </p>
-          </div>
-          <button
-            onClick={() => setIsDrawerOpen(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98] self-start md:self-auto"
-          >
-            <AddRoundedIcon sx={{ fontSize: 16 }} />
-            Issue Filling Token
-          </button>
-        </div>
+        {/* Action bar */}
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -120,29 +151,127 @@ export default function ContractorDashboard() {
             loading={walletLoading}
           />
           <MiniStat
-            label="Available"
-            value={wallet?.availableBalance || 0}
-            Icon={LocalAtmRoundedIcon}
-            currency
-            accent="success"
-            loading={walletLoading}
-          />
-          <MiniStat
-            label="Reserved"
-            value={wallet?.walletReserved || 0}
-            Icon={LockOutlinedIcon}
-            currency
-            accent="warning"
-            loading={walletLoading}
-          />
-          <MiniStat
             label="Completed Today"
             value={completedToday}
             Icon={LocalShippingOutlinedIcon}
             accent="indigo"
           />
+          <MiniStat
+            label="Water Sourced (MTD)"
+            value={142500}
+            suffix=" L"
+            Icon={LocalDrinkRoundedIcon}
+            accent="success"
+          />
+          <MiniStat
+            label="Avg Dispatch Time"
+            value={42}
+            suffix=" min"
+            Icon={AccessTimeRoundedIcon}
+            accent="warning"
+          />
         </div>
 
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Dispatch Volume Chart */}
+          <section className="lg:col-span-8 minimal-card flex flex-col p-5">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <ShowChartRoundedIcon sx={{ fontSize: 16 }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-ink leading-tight">Weekly Dispatch Volume</h2>
+                <p className="text-[10px] text-ink-muted">Aggregated liters dispensed over the last 7 days</p>
+              </div>
+            </div>
+            <div className="h-56 w-full mt-auto">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={mockWeeklyVolume} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1c75bc" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#1c75bc" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    tickFormatter={(value) => `${value / 1000}k`}
+                  />
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="volume"
+                    stroke="#1c75bc"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorVolume)"
+                    animationDuration={1500}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          {/* Fleet Status Chart */}
+          <section className="lg:col-span-4 minimal-card flex flex-col p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                <DonutLargeRoundedIcon sx={{ fontSize: 16 }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-ink leading-tight">Fleet Availability</h2>
+                <p className="text-[10px] text-ink-muted">Current status of registered tankers</p>
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col justify-center items-center relative">
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={mockFleetStatus}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={75}
+                      paddingAngle={2}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {mockFleetStatus.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
+                <p className="text-2xl font-bold text-ink">18</p>
+                <p className="text-[10px] uppercase font-semibold text-ink-muted tracking-wider">Total</p>
+              </div>
+              <div className="flex gap-4 mt-2 justify-center w-full">
+                {mockFleetStatus.map((item) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-[10px] font-medium text-ink-secondary">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Data Row */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Wallet card */}
           <aside className="lg:col-span-4 minimal-card overflow-hidden flex flex-col">
@@ -151,7 +280,7 @@ export default function ContractorDashboard() {
                 <div className="w-7 h-7 rounded bg-brand-subtle text-brand flex items-center justify-center">
                   <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />
                 </div>
-                <h2 className="text-sm font-semibold text-ink">Wallet</h2>
+                <h2 className="text-sm font-semibold text-ink">Wallet Financials</h2>
               </div>
               <Link
                 href="/contractor/wallet"
@@ -216,6 +345,7 @@ export default function ContractorDashboard() {
                   <p className="text-[10px] text-ink-muted">Latest filling tokens issued</p>
                 </div>
               </div>
+              <div>
               <Link
                 href="/contractor/orders"
                 className="inline-flex items-center gap-1 h-7 px-2.5 rounded text-[11px] font-semibold text-brand hover:bg-brand-subtle transition-colors"
@@ -223,6 +353,14 @@ export default function ContractorDashboard() {
                 View all
                 <ArrowForwardRoundedIcon sx={{ fontSize: 12 }} />
               </Link>
+              <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="inline-flex items-center gap-1 h-8 px-2.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98]"
+          >
+            <AddRoundedIcon sx={{ fontSize: 12 }} />
+            Issue Filling Token
+          </button>
+          </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -327,13 +465,15 @@ function MiniStat({
   Icon,
   accent = 'default',
   currency = false,
+  suffix = '',
   loading = false,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   Icon: React.ComponentType<SvgIconProps>;
   accent?: 'default' | 'success' | 'warning' | 'indigo';
   currency?: boolean;
+  suffix?: string;
   loading?: boolean;
 }) {
   const tile =
@@ -354,7 +494,8 @@ function MiniStat({
         ) : (
           <p className="text-2xl font-bold text-ink tabular-nums tracking-tight leading-none flex items-center">
             {currency && <CurrencyRupeeRoundedIcon sx={{ fontSize: 18 }} className="text-ink-secondary" />}
-            {value.toLocaleString()}
+            {typeof value === 'number' ? value.toLocaleString() : value}
+            {suffix && <span className="text-sm text-ink-muted font-medium ml-0.5 mt-1">{suffix}</span>}
           </p>
         )}
       </div>
@@ -584,3 +725,4 @@ function CreateOrderDrawer({
     </Drawer>
   );
 }
+

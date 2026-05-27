@@ -76,25 +76,7 @@ export default function SigmaDevicesPage() {
   return (
     <>
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-fade-up">
-        {/* Hero header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 pb-5 border-b border-edge-light">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted mb-1">
-              Platform → Devices
-            </p>
-            <h1 className="text-2xl font-bold text-ink tracking-tight">Device Network</h1>
-            <p className="text-sm text-ink-muted mt-1">
-              Register and monitor master controllers and their slave sensors across all cities.
-            </p>
-          </div>
-          <button
-            onClick={() => setRegisterOpen(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98] self-start md:self-auto"
-          >
-            <AddRoundedIcon sx={{ fontSize: 16 }} />
-            Register Master
-          </button>
-        </div>
+
 
         {/* Quick stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -156,6 +138,14 @@ export default function SigmaDevicesPage() {
                 title="Filter"
               >
                 <FilterListRoundedIcon sx={{ fontSize: 16 }} />
+              </button>
+
+              <button
+                onClick={() => setRegisterOpen(true)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 bg-brand hover:bg-brand-hover text-white rounded-md text-xs font-semibold shadow-sm shadow-blue-600/20 transition-all active:scale-[0.98]"
+              >
+                <AddRoundedIcon sx={{ fontSize: 14 }} />
+                Register Master
               </button>
             </div>
           </div>

@@ -20,7 +20,10 @@ import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneR
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardDoubleArrowLeftRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowLeftRounded';
 import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import { SvgIconProps } from '@mui/material/SvgIcon';
+import { useHeaderStore } from '@/store/headerStore';
+import TruckSearchModal from '@/components/TruckSearchModal';
 
 type NavItem = {
   name: string;
@@ -34,10 +37,101 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { jwt, userRole, user, clearAuth, _hasHydrated } = useAuthStore();
+  const { title: customTitle, subtitle: customSubtitle, category: customCategory } = useHeaderStore();
+
+  const getHeaderInfo = () => {
+    if (customTitle) {
+      return {
+        title: customTitle,
+        subtitle: customSubtitle,
+        category: customCategory,
+      };
+    }
+
+    if (pathname === '/sigma-admin') {
+      return {
+        title: 'Platform Overview',
+        subtitle: 'A comprehensive snapshot of your cities, infrastructure, and operations.',
+        category: 'Platform',
+      };
+    }
+    if (pathname === '/sigma-admin/pmc') {
+      return {
+        title: 'PMC Management',
+        subtitle: 'Onboard, monitor and configure all registered cities and their administrators.',
+        category: 'Platform → Cities',
+      };
+    }
+    if (pathname === '/sigma-admin/devices') {
+      return {
+        title: 'Device Network',
+        subtitle: 'Register and monitor master controllers and their slave sensors across all cities.',
+        category: 'Platform → Devices',
+      };
+    }
+    if (pathname === '/pmc-admin') {
+      return {
+        title: 'Contractor Management',
+        subtitle: 'Onboard and oversee fleet contractors operating under this municipality.',
+        category: 'Operations → Contractors',
+      };
+    }
+    if (pathname === '/pmc-admin/devices') {
+      return {
+        title: 'Device Management',
+        subtitle: 'Monitor and manage master and slave devices across all stations.',
+        category: 'Operations → Devices',
+      };
+    }
+    if (pathname.startsWith('/pmc-admin/devices/')) {
+      return {
+        title: 'Device Detail',
+        subtitle: 'Monitor telemetry and connected slave sensors.',
+        category: 'Operations → Devices → Detail',
+      };
+    }
+    if (pathname === '/contractor') {
+      return {
+        title: 'Fleet Operations',
+        subtitle: 'Real-time tanker dispatch, analytics, and financial oversight.',
+        category: 'Operations → Dashboard',
+      };
+    }
+    if (pathname === '/contractor/wallet') {
+      return {
+        title: 'Wallet',
+        subtitle: 'Balance overview, reserved funds and full transaction history.',
+        category: 'Finance → Wallet',
+      };
+    }
+    if (pathname === '/contractor/trucks') {
+      return {
+        title: 'Tanker Fleet',
+        subtitle: 'Register, monitor and manage tankers across your operations.',
+        category: 'Operations → Tankers',
+      };
+    }
+    if (pathname === '/contractor/orders') {
+      return {
+        title: 'Order History',
+        subtitle: 'All filling tokens issued, with current status and final amount.',
+        category: 'Operations → Orders',
+      };
+    }
+
+    return {
+      title: 'Water Management System',
+      subtitle: 'Premium water logistics & automation platform.',
+      category: 'Dashboard',
+    };
+  };
+
+  const { title, subtitle, category } = getHeaderInfo();
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -305,17 +399,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Topbar */}
         <header className="topbar h-14 flex items-center justify-between px-4 md:px-6 shrink-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1 mr-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-1.5 rounded-md text-ink-muted hover:bg-base hover:text-ink transition-colors"
+              className="lg:hidden p-1.5 rounded-md text-ink-muted hover:bg-base hover:text-ink transition-colors shrink-0"
               aria-label="Open menu"
             >
               <MenuRoundedIcon sx={{ fontSize: 22 }} />
             </button>
+
+            {/* Premium Header Content */}
+            <div className="flex flex-col leading-tight min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-bold text-ink truncate tracking-tight">{title}</h1>
+                {category && (
+                  <span className="hidden sm:inline-flex items-center gap-1.5 text-[9px] font-semibold text-ink-muted bg-base border border-edge-light rounded px-1.5 py-0.5 uppercase tracking-wider font-mono">
+                    {category}
+                  </span>
+                )}
+              </div>
+              {subtitle && (
+                <p className="text-[10px] text-ink-muted truncate hidden md:block mt-0.5">{subtitle}</p>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5">
+            {userRole === 'SIGMA_ADMIN' && (
+              <button
+                onClick={() => setSearchModalOpen(true)}
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs text-ink-muted bg-surface border border-edge-light rounded-md hover:text-ink hover:border-brand/40 transition-colors mr-2"
+                title="Global Truck Search"
+              >
+                <SearchRoundedIcon sx={{ fontSize: 16 }} />
+                <span>Search trucks...</span>
+              </button>
+            )}
+
             <button
               className="relative p-2 text-ink-muted hover:text-ink hover:bg-base rounded-md transition-colors"
               title="Notifications"
@@ -370,6 +490,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
+
+      <TruckSearchModal open={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
     </div>
   );
 }
