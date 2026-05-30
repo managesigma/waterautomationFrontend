@@ -32,10 +32,10 @@ export default function LoginPage() {
 
     try {
       const response = await api.post('/auth/login', formData);
-      const { token, deploymentType, apiBaseUrl, user } = response.data;
+      const { accessToken, token, deploymentType, apiBaseUrl, user } = response.data;
 
       setAuth({
-        jwt: token,
+        jwt: accessToken || token,
         deploymentType,
         apiBaseUrl,
         userRole: user.role,
